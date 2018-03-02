@@ -34,6 +34,7 @@ int16_t LO = 700;
 bool timeflag = 0;
 uint8_t LastOUT1=0;
 uint8_t RegisterA=0;
+uint8_t LastRegisterA=0;
 uint8_t RegisterB=1;
 uint8_t RegisterC=0;
 uint8_t OUT1=0;
@@ -47,6 +48,7 @@ uint32_t ADCRawValue=0;
 int32_t ADC_Display=0;
 int32_t DACOUT = 1000;
 uint32_t CPV = 0;
+
 
 Button_STATUS KEY=ULOC;
 uint8_t 		ConfirmShortCircuit=0;
@@ -88,9 +90,16 @@ extern int8_t DSC;
 
 uint8_t DustFlag=0;
 
-int32_t 	S[4];
+int32_t 	SA[4];   /*PG120->S[4]*/
+int32_t 	SB[4];   /*PG120->S[4]*/
+int32_t 	SA_Sum;
+int32_t 	SB_Sum;
+int32_t 	SA_Final;
+int32_t 	SB_Final;
 uint8_t 	S_Index=0;
 uint8_t 	S_Flag=0;
+int32_t		S_Total_Final=0;
+
 
 int32_t 	SX[4];
 int32_t 	SX_Final[32];
@@ -283,136 +292,190 @@ void JudgeDX(void)
 uint16_t  RunCounter[100];
 uint8_t		Runflag=0;
 uint8_t		RunIndex=0;
-void DMA1_Channel1_IRQHandler(void)
-{
-	uint32_t 	SX_Max=0;
-	uint32_t 	SX_Min=0;
 
-	uint32_t 	TX_Max=0;
-	uint32_t 	TX_Min=0;
-
-	uint32_t 	Dispaly_Max=0;
-	uint32_t 	Dispaly_Min=0;
-	
-	int32_t tempdata;
-	
- 	/*判断DMA传输完成中断*/ 
-	if(DMA_GetITStatus(DMA1_IT_TC1) != RESET)                        
-	{
-		if(PWMCounter<100)
-			PWMCounter++;
-		S[0] = 4095-adc_dma_tab[0];
-		S[1] = 4095-adc_dma_tab[1];
-		S[2] = 4095-adc_dma_tab[2];
-		S[3] = 4095-adc_dma_tab[3];
-		GetSum(&SX[S_Index++],S,4);/*四个通道总和*/
-		S_Flag = 1;
-		
-		if(S_Index>3)	
-		{					
-				S_Index = 0;
-				/*SX,FX*/
-				tempdata = DeleteMaxAndMinGetAverage(SX,4,&SX_Max,&SX_Min);
-				SX_Final[SX_Index] = tempdata - 3000;/*求得并去掉最大最小值，求剩下数据的平均值,需要求32组*/
-				/*数据限位*/
-				if(SX_Final[SX_Index]>=9999) 
-					SX_Final[SX_Index] = 9999;
-				if(SX_Final[SX_Index]<=0) 
-					SX_Final[SX_Index] = 0;
-					
-				/*求得S最终信号*/
-				S_Final = SX_Final[SX_Index] + DX;	/*获得最终信号值 信号值加上DX，得到的数据作为最终信号值*/
-				if(S_Final>=9999) 
-					S_Final=9999;
-				if(S_Final<=0) 
-					S_Final=0;
-				S_Final_FinishFlag = 1;
-			
-								
-				if(PWMCounter>50)/*大于等于50个PWM脉冲，才开始计算RegisterA*/
-					SetRegisterA(S_Final);/*判断RegisterA的状态*/
-				if(PWMCounter>80)
-					SetOUT1Status();/*大于等于50个PWM脉冲，才开始设置OUT输出*/
+extern int32_t CSV;
+/*DD61-TWO-DAC funtion*/
+void DMA1_Channel1_IRQHandler(void)  
+{  
+//		if(DMA_GetITStatus(DMA_IT_HT))
+//				;
+    if(DMA_GetITStatus(DMA_IT_TC))                      //判断DMA传输完成中断  
+    {   
+				//GPIOA->ODR ^= GPIO_Pin_9;
+				SA[S_Index] = 4095-adc_dma_tab[0];
+				SA_Sum += SA[S_Index];  /*4次求和*/
+				SB[S_Index] = 4095-adc_dma_tab[1];
+				SB_Sum += SB[S_Index];	/*4次求和*/
+				S_Index++;
 				
-				FX = (SX_Max-SX_Min);  /*求得FX*/
-				ClearData(SX,4);/*清零*/
-			
-				/*TX*/
-				GetSum(&TX_Signal[TX_Index++],&S_Final,1);/*六次总和,TX*///20180106
-				if(TX_Index>=6)
+				if(S_Index>3)
 				{
-					TX_Index = 0;
-					DeleteMaxAndMinGetAverage(TX_Signal,6,&TX_Max,&TX_Min);
-					TX = (TX_Max-TX_Min);/*求得TX*/
-					//TX = 0;
-					ClearData(TX_Signal,8);/*清零*/
-				}
-				
-				/*显示数据计数*/
-				GetSum(&DisplayADCValue_Sum,&S_Final,1);
-				Display_Signal_Index++;
-				if(Display_Signal_Index>=256)
-				{
-					ADCRawValue = DisplayADCValue_Sum/256;
-					Display_Signal_Index = 0;
-					Display_Signal_Flag	=	1;
-					DisplayADCValue_Sum = 0;
-					
-				}
+					S_Index = 0;
+					SA_Final = SA_Sum / 4;
+					SB_Final = SB_Sum / 4;
 
-				/*根据CPV，设置OUT输出*/
-				CPV_SET_OUT();
-				/*判断灰层*/
-				if(DX_Flag==1)
-					JudgeDX();
-				/*累计32组数据*/
-				SX_Index++;
-				if(SX_Index>31)
-				{
-					SX_Index = 0;
-					SX_Flag = 1;
-					/*自学习*/
-					if(SelftStudyflag)
+					S_Total_Final = SA_Final - SB_Final;
+					
+					if(S_Total_Final<=0) S_Total_Final=0;
+					if(S_Total_Final>=4095) S_Total_Final=4095;
+					
+					if(S_Total_Final>=Threshold)
+						RegisterA = 1;
+					else if(S_Total_Final<=Threshold-DEL)
+						RegisterA = 0;
+					
+					/*设置OUT1的状态*/
+					SetOUT1Status();
+					
+					if(LastRegisterA==0&&RegisterA==1)
 					{
-						DX = 0;
-						S1024 = 0;
-						//GetAverage(&S_SET,SX_Final,32); /*自学习，求得S-SET*/
-						//Threshold = S_SET-80;   /*更新阀值*/
-						S_SET = S_Final;
-						
-						if(displayModeONE_FLAG)//区域模式
+						CPV++;
+						if(CPV>=CSV) /*如果计数器达到预先设定的CSV，清零，OUT2输出一个高电平*/
 						{
-							if(DisplayModeNo==0)
-							{
-								HI = S_SET*(100-PERCENTAGE)/100;   /*更新阀值,=S-SET*(1-1%)=S-SET*0.99=S-SET*99/100*/;
-								WriteFlash(HI_FLASH_DATA_ADDRESS,HI);
-							}
-							else if(DisplayModeNo==1)
-							{
-								LO =S_SET*(100-PERCENTAGE)/100;   /*更新阀值,=S-SET*(1-1%)=S-SET*0.99=S-SET*99/100*/;
-								WriteFlash(LO_FLASH_DATA_ADDRESS,LO);
-							}
+							OUT2 = 1;
+							CPV = 0;
 						}
-						else    //标准模式
-						{
-							Threshold = S_SET*(100-PERCENTAGE)/100;   /*更新阀值,=S-SET*(1-1%)=S-SET*0.99=S-SET*99/100*/
-							WriteFlash(Threshold_FLASH_DATA_ADDRESS,Threshold);
-						}
-						SelftStudyflag = 0;
-						
-						WriteFlash(S_SET_FLASH_DATA_ADDRESS,S_SET);
 					}
+					/*显示OUT1和OUT2的状态*/
+					SMG_DisplayOUT_STATUS(OUT1,OUT2,0);
+					LastRegisterA = RegisterA;
 				}
-				/*计算时间*/
-				RunCounter[RunIndex] = TIM_GetCounter(TIM4);
-				if(RunCounter[RunIndex] >=3200)
-					Runflag = 1;
-				RunIndex++;
-		}
-	}
-	/*清除DMA中断标志位*/	
-	DMA_ClearITPendingBit(DMA1_IT_TC1); 
-}
+    }  
+    DMA_ClearITPendingBit(DMA_IT_TC);                   //清楚DMA中断标志位  
+}  
+
+
+/*PG120-ADC-DMA*/
+//void DMA1_Channel1_IRQHandler(void)
+//{
+//	uint32_t 	SX_Max=0;
+//	uint32_t 	SX_Min=0;
+
+//	uint32_t 	TX_Max=0;
+//	uint32_t 	TX_Min=0;
+
+//	uint32_t 	Dispaly_Max=0;
+//	uint32_t 	Dispaly_Min=0;
+//	
+//	int32_t tempdata;
+//	
+// 	/*判断DMA传输完成中断*/ 
+//	if(DMA_GetITStatus(DMA1_IT_TC1) != RESET)                        
+//	{
+//		if(PWMCounter<100)
+//			PWMCounter++;
+//		S[0] = 4095-adc_dma_tab[0];
+//		S[1] = 4095-adc_dma_tab[1];
+//		S[2] = 4095-adc_dma_tab[2];
+//		S[3] = 4095-adc_dma_tab[3];
+//		GetSum(&SX[S_Index++],S,4);/*四个通道总和*/
+//		S_Flag = 1;
+//		
+//		if(S_Index>3)	
+//		{					
+//				S_Index = 0;
+//				/*SX,FX*/
+//				tempdata = DeleteMaxAndMinGetAverage(SX,4,&SX_Max,&SX_Min);
+//				SX_Final[SX_Index] = tempdata - 3000;/*求得并去掉最大最小值，求剩下数据的平均值,需要求32组*/
+//				/*数据限位*/
+//				if(SX_Final[SX_Index]>=9999) 
+//					SX_Final[SX_Index] = 9999;
+//				if(SX_Final[SX_Index]<=0) 
+//					SX_Final[SX_Index] = 0;
+//					
+//				/*求得S最终信号*/
+//				S_Final = SX_Final[SX_Index] + DX;	/*获得最终信号值 信号值加上DX，得到的数据作为最终信号值*/
+//				if(S_Final>=9999) 
+//					S_Final=9999;
+//				if(S_Final<=0) 
+//					S_Final=0;
+//				S_Final_FinishFlag = 1;
+//			
+//								
+//				if(PWMCounter>50)/*大于等于50个PWM脉冲，才开始计算RegisterA*/
+//					SetRegisterA(S_Final);/*判断RegisterA的状态*/
+//				if(PWMCounter>80)
+//					SetOUT1Status();/*大于等于50个PWM脉冲，才开始设置OUT输出*/
+//				
+//				FX = (SX_Max-SX_Min);  /*求得FX*/
+//				ClearData(SX,4);/*清零*/
+//			
+//				/*TX*/
+//				GetSum(&TX_Signal[TX_Index++],&S_Final,1);/*六次总和,TX*///20180106
+//				if(TX_Index>=6)
+//				{
+//					TX_Index = 0;
+//					DeleteMaxAndMinGetAverage(TX_Signal,6,&TX_Max,&TX_Min);
+//					TX = (TX_Max-TX_Min);/*求得TX*/
+//					//TX = 0;
+//					ClearData(TX_Signal,8);/*清零*/
+//				}
+//				
+//				/*显示数据计数*/
+//				GetSum(&DisplayADCValue_Sum,&S_Final,1);
+//				Display_Signal_Index++;
+//				if(Display_Signal_Index>=256)
+//				{
+//					ADCRawValue = DisplayADCValue_Sum/256;
+//					Display_Signal_Index = 0;
+//					Display_Signal_Flag	=	1;
+//					DisplayADCValue_Sum = 0;
+//					
+//				}
+
+//				/*根据CPV，设置OUT输出*/
+//				CPV_SET_OUT();
+//				/*判断灰层*/
+//				if(DX_Flag==1)
+//					JudgeDX();
+//				/*累计32组数据*/
+//				SX_Index++;
+//				if(SX_Index>31)
+//				{
+//					SX_Index = 0;
+//					SX_Flag = 1;
+//					/*自学习*/
+//					if(SelftStudyflag)
+//					{
+//						DX = 0;
+//						S1024 = 0;
+//						//GetAverage(&S_SET,SX_Final,32); /*自学习，求得S-SET*/
+//						//Threshold = S_SET-80;   /*更新阀值*/
+//						S_SET = S_Final;
+//						
+//						if(displayModeONE_FLAG)//区域模式
+//						{
+//							if(DisplayModeNo==0)
+//							{
+//								HI = S_SET*(100-PERCENTAGE)/100;   /*更新阀值,=S-SET*(1-1%)=S-SET*0.99=S-SET*99/100*/;
+//								WriteFlash(HI_FLASH_DATA_ADDRESS,HI);
+//							}
+//							else if(DisplayModeNo==1)
+//							{
+//								LO =S_SET*(100-PERCENTAGE)/100;   /*更新阀值,=S-SET*(1-1%)=S-SET*0.99=S-SET*99/100*/;
+//								WriteFlash(LO_FLASH_DATA_ADDRESS,LO);
+//							}
+//						}
+//						else    //标准模式
+//						{
+//							Threshold = S_SET*(100-PERCENTAGE)/100;   /*更新阀值,=S-SET*(1-1%)=S-SET*0.99=S-SET*99/100*/
+//							WriteFlash(Threshold_FLASH_DATA_ADDRESS,Threshold);
+//						}
+//						SelftStudyflag = 0;
+//						
+//						WriteFlash(S_SET_FLASH_DATA_ADDRESS,S_SET);
+//					}
+//				}
+//				/*计算时间*/
+//				RunCounter[RunIndex] = TIM_GetCounter(TIM4);
+//				if(RunCounter[RunIndex] >=3200)
+//					Runflag = 1;
+//				RunIndex++;
+//		}
+//	}
+//	/*清除DMA中断标志位*/	
+//	DMA_ClearITPendingBit(DMA1_IT_TC1); 
+//}
 
 /*采样完成后，ADC数据处理*/
 uint32_t  ADCDispalyProcess(uint32_t *ADC_RowValue,uint16_t Length)
@@ -476,21 +539,21 @@ void Main_Function(void)
 		else
 		{
 
-				/*短路保护*/
-				ShortCircuitProtection();
+//				/*短路保护*/
+//				ShortCircuitProtection();
 
-				while(ConfirmShortCircuit)
-				{
-						GPIO_WriteBit(OUT1_GPIO_Port,OUT1_Pin,Bit_RESET);
-						GPIO_WriteBit(OUT2_GPIO_Port,OUT2_Pin,Bit_RESET);/*马上拉低OUT*/ /*发现短路，将OUT引脚拉低*/
-						GPIO_WriteBit(OUT3_GPIO_Port,OUT3_Pin,Bit_RESET);/*马上拉低OUT*/ /*发现短路，将OUT引脚拉低*/
-						if((ShortCircuitLastTime - ShortCircuitTimer)>=2000)
-						{
-								ConfirmShortCircuit = 0;
-								ShortCircuitCounter = 0;
-								ShortCircuit=0;
-						}
-				}
+//				while(ConfirmShortCircuit)
+//				{
+//						GPIO_WriteBit(OUT1_GPIO_Port,OUT1_Pin,Bit_RESET);
+//						GPIO_WriteBit(OUT2_GPIO_Port,OUT2_Pin,Bit_RESET);/*马上拉低OUT*/ /*发现短路，将OUT引脚拉低*/
+//						//GPIO_WriteBit(OUT3_GPIO_Port,OUT3_Pin,Bit_RESET);/*马上拉低OUT*/ /*发现短路，将OUT引脚拉低*/
+//						if((ShortCircuitLastTime - ShortCircuitTimer)>=2000)
+//						{
+//								ConfirmShortCircuit = 0;
+//								ShortCircuitCounter = 0;
+//								ShortCircuit=0;
+//						}
+//				}
 				
 				/*正常显示模式*/
 				DisplayMODE();
@@ -501,7 +564,7 @@ void Main_Function(void)
 				/*OUT2输出*/
 				SetOUT2Status();
 				/*OUT3输出*/
-				SetOUT3Status();
+				//SetOUT3Status();
 				
 				if(KEY==ULOC)/*判断按键是否上锁*/
 				{
@@ -1273,13 +1336,13 @@ void SetOUT3Status(void)
 	{
 		if(OUT3)
 		{
-			GPIO_WriteBit(OUT3_GPIO_Port,OUT3_Pin,Bit_SET);/*拉高*/
+			//GPIO_WriteBit(OUT3_GPIO_Port,OUT3_Pin,Bit_SET);/*拉高*/
 		}
 	 if(OUT3_TimerCounter >=160)
 		{
 			OUT3 = 0;
 			OUT3_TimerCounter = 0;  /*获取当前时间*/
-			GPIO_WriteBit(OUT3_GPIO_Port,OUT3_Pin,Bit_RESET);/*80ms后拉低*/
+			//GPIO_WriteBit(OUT3_GPIO_Port,OUT3_Pin,Bit_RESET);/*80ms后拉低*/
 		}
 	}
 }
@@ -1296,7 +1359,7 @@ void ShortCircuitProtection(void)
 	/*读取SC引脚的状态*/
 	if(ShortCircuit!=1)
 	{
-		SCState = GPIO_ReadInputDataBit(SC_GPIO_Port ,SC_Pin);
+		//SCState = GPIO_ReadInputDataBit(SC_GPIO_Port ,SC_Pin);
 		if((BitAction)SCState == Bit_RESET)
 		{
 			/*拉低FB_SC*/
@@ -1313,7 +1376,7 @@ void ShortCircuitProtection(void)
 		ConfirmShortCircuit=1;
 		GPIO_WriteBit(OUT1_GPIO_Port,OUT1_Pin,Bit_RESET);
 		GPIO_WriteBit(OUT2_GPIO_Port,OUT2_Pin,Bit_RESET);/*马上拉低OUT*/
-		GPIO_WriteBit(OUT3_GPIO_Port,OUT3_Pin,Bit_RESET);/*马上拉低OUT*/
+		//GPIO_WriteBit(OUT3_GPIO_Port,OUT3_Pin,Bit_RESET);/*马上拉低OUT*/
 		ShortCircuitTimer = ShortCircuitLastTime;
 	}	
 }

@@ -16,3 +16,4 @@
 ..\output\bsp_init.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_flash.h
 ..\output\bsp_init.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_adc.h
 ..\output\bsp_init.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_dma.h
+..\output\bsp_init.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_dac.h

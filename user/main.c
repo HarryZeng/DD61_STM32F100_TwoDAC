@@ -170,7 +170,9 @@ void bsp_init(void)
 		TIM3_init();
 		TIM4_init();
 		ADC1_Configuration();
-	
+		#ifdef  DAC_OUT_Enable
+			DAC_Configuration();
+		#endif
 		RCC_GetClocksFreq(&SysClock);
 		IO_GPIO_INIT();
 		SMG_GPIO_INIT();

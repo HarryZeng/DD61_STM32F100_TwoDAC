@@ -4,6 +4,7 @@
 #include "stm32f10x_flash.h"
 #include "stm32f10x_adc.h"
 #include "stm32f10x_dma.h"
+#include "stm32f10x_dac.h"
 
 
 #define DMA_BUFFER_SIZE     4
@@ -142,16 +143,16 @@ void IO_GPIO_INIT(void)
     gpio_init_structure.GPIO_Speed = GPIO_Speed_50MHz;                               
 		GPIO_Init(OUT2_GPIO_Port, &gpio_init_structure);
 
-		gpio_init_structure.GPIO_Pin = OUT3_Pin;  
-    gpio_init_structure.GPIO_Mode = GPIO_Mode_Out_PP;             
-    gpio_init_structure.GPIO_Speed = GPIO_Speed_50MHz;                               
-		GPIO_Init(OUT3_GPIO_Port, &gpio_init_structure);
+//		gpio_init_structure.GPIO_Pin = OUT3_Pin;  
+//    gpio_init_structure.GPIO_Mode = GPIO_Mode_Out_PP;             
+//    gpio_init_structure.GPIO_Speed = GPIO_Speed_50MHz;                               
+//		GPIO_Init(OUT3_GPIO_Port, &gpio_init_structure);
 
-		//SC_GPIO_Port
-    gpio_init_structure.GPIO_Pin = SC_Pin;  
-    gpio_init_structure.GPIO_Mode = GPIO_Mode_IN_FLOATING;                                 
-    gpio_init_structure.GPIO_Speed = GPIO_Speed_2MHz;                                
-		GPIO_Init(SC_GPIO_Port, &gpio_init_structure);
+//		//SC_GPIO_Port
+//    gpio_init_structure.GPIO_Pin = SC_Pin;  
+//    gpio_init_structure.GPIO_Mode = GPIO_Mode_IN_FLOATING;                                 
+//    gpio_init_structure.GPIO_Speed = GPIO_Speed_2MHz;                                
+//		GPIO_Init(SC_GPIO_Port, &gpio_init_structure);
 		
 }
 
@@ -160,6 +161,7 @@ void TIM4_init(void)
 {
 	TIM_TimeBaseInitTypeDef timer_init_structure; 
 	NVIC_InitTypeDef NVIC_InitStructure;
+	TIM_OCInitTypeDef         TIM_OCInitStructure;
 	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE); 
 	
@@ -169,7 +171,7 @@ void TIM4_init(void)
 	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;     
 	NVIC_Init(&NVIC_InitStructure);
 	
-	/*TIM3*/
+	/*TIM4*/
 	TIM_DeInit(TIM4);                                               //复位TIM3
 	TIM_TimeBaseStructInit(&timer_init_structure);                  //初始化TIM结构体  
 
@@ -179,9 +181,28 @@ void TIM4_init(void)
 	timer_init_structure.TIM_Prescaler = 0;                      //计数时钟分频,f=1M,systick=1 uS  
 	timer_init_structure.TIM_RepetitionCounter = 0x00;              //发生0+1的update事件产生中断 
 	
+			/*OCInit Channel 1 Configuration in PWM mode */
+		TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;                                
+		TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;         
+		TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Disable;
+		TIM_OCInitStructure.TIM_Pulse = 96;                                  	//PWM      96->1.5us                
+		TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;                 
+		TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_Low;     
+		TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
+		TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset; 
+
+
+		TIM_OC4Init(TIM4,&TIM_OCInitStructure);                                                 
+		TIM_OC4PreloadConfig(TIM4, TIM_OCPreload_Enable);	
+	
 	TIM_TimeBaseInit(TIM4, &timer_init_structure);  
+	
 	TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE);                       //使能TIM3中断
+	TIM_ITConfig(TIM4, TIM_IT_CC4 , ENABLE);
+	
 	TIM_Cmd(TIM4, ENABLE);                                          //使能TIM3
+	
+	
 
 }
 
@@ -377,13 +398,13 @@ void ADC1_GPIO_Config()
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;		//模拟输入引脚
 	GPIO_Init(ADCIN_2_GPIO_Port, &GPIO_InitStructure);	
 	
-	GPIO_InitStructure.GPIO_Pin = ADCIN_3_Pin;//CH->7
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;		//模拟输入引脚
-	GPIO_Init(ADCIN_3_GPIO_Port, &GPIO_InitStructure);	
-	
-	GPIO_InitStructure.GPIO_Pin = ADCIN_4_Pin;//CH->6
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;		//模拟输入引脚
-	GPIO_Init(ADCIN_4_GPIO_Port, &GPIO_InitStructure);
+//	GPIO_InitStructure.GPIO_Pin = ADCIN_3_Pin;//CH->7
+//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;		//模拟输入引脚
+//	GPIO_Init(ADCIN_3_GPIO_Port, &GPIO_InitStructure);	
+//	
+//	GPIO_InitStructure.GPIO_Pin = ADCIN_4_Pin;//CH->6
+//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;		//模拟输入引脚
+//	GPIO_Init(ADCIN_4_GPIO_Port, &GPIO_InitStructure);
 }
 
 void ADC1_DMA1_Init()
@@ -437,17 +458,17 @@ void ADC1_Init(void)
   ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
   ADC_InitStructure.ADC_ScanConvMode = ENABLE;
   ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
-  //ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T2_CC2;
+  ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T4_CC4;
 	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;  /*使用软件触发*/
   ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-  ADC_InitStructure.ADC_NbrOfChannel = 4;
+  ADC_InitStructure.ADC_NbrOfChannel = 2;
   ADC_Init(ADC1, &ADC_InitStructure);
 
   /* ADC1 regular configuration */ 
-  ADC_RegularChannelConfig(ADC1, ADC_Channel_5, 1, ADC_SampleTime_7Cycles5);
-  ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 2, ADC_SampleTime_7Cycles5);
-  ADC_RegularChannelConfig(ADC1, ADC_Channel_7, 3, ADC_SampleTime_7Cycles5);
-	ADC_RegularChannelConfig(ADC1, ADC_Channel_6, 4, ADC_SampleTime_7Cycles5);
+  ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 1, ADC_SampleTime_7Cycles5);
+  ADC_RegularChannelConfig(ADC1, ADC_Channel_5, 2, ADC_SampleTime_7Cycles5);
+//  ADC_RegularChannelConfig(ADC1, ADC_Channel_7, 3, ADC_SampleTime_7Cycles5);
+//	ADC_RegularChannelConfig(ADC1, ADC_Channel_6, 4, ADC_SampleTime_7Cycles5);
 
    ADC_DMACmd(ADC1 , ENABLE);
    ADC_ExternalTrigConvCmd(ADC1, ENABLE);
@@ -466,6 +487,49 @@ void ADC1_Configuration(void)
     TIM2_init();
     ADC1_DMA1_Init();
     ADC1_Init();
+}
+
+
+/*DAC 配置*/
+/*
+DAC-1
+DAC-2
+*/
+void DAC_GPIO_Init(void)
+{
+		GPIO_InitTypeDef GPIO_InitStructure;  
+    //??GPIO??  
+    RCC_AHBPeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE); 
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);
+	
+		GPIO_InitStructure.GPIO_Pin = DACOUT1_Pin;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;		//模拟输入引脚                
+		GPIO_Init(DACOUT1_GPIO_Port, &GPIO_InitStructure);
+	
+		GPIO_InitStructure.GPIO_Pin = DACOUT2_Pin;
+		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;		//模拟输入引脚                
+		GPIO_Init(DACOUT2_GPIO_Port, &GPIO_InitStructure);
+}
+
+void DAC_OUT_Init(void)
+{
+		DAC_InitTypeDef DAC_InitStructure;
+		
+		DAC_GPIO_Init();
+
+		DAC_InitStructure.DAC_Trigger = DAC_Trigger_Software;  //软件触发DA转换
+		DAC_InitStructure.DAC_WaveGeneration = DAC_WaveGeneration_None;//不产生波形
+		DAC_InitStructure.DAC_LFSRUnmask_TriangleAmplitude = DAC_LFSRUnmask_Bit0;
+		DAC_InitStructure.DAC_OutputBuffer = DAC_OutputBuffer_Enable ;  //使能输出缓存
+		DAC_Init(DAC_Channel_1,&DAC_InitStructure);    //初始化 DAC 通道 1
+
+}
+
+void DAC_Configuration(void)
+{
+	DAC_GPIO_Init();
+	
+	DAC_OUT_Init();
 }
 
 //void  ADC1_Init(void)

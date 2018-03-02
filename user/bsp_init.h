@@ -41,6 +41,10 @@ void ADC1_Configuration(void);
 void ADC1_Init(void);
 void ADC2_Init(void);
 	
+#ifdef  DAC_OUT_Enable
+void DAC_Configuration(void);	
+#endif
+
 extern int16_t adc_dma_tab[4]; 
 
 	 

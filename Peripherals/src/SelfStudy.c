@@ -54,8 +54,8 @@ void selfstudy(void)
 				GPIO_WriteBit(OUT1_GPIO_Port,OUT1_Pin,(BitAction)OUT1_STATUS);/*保持着OUT1状态*/
 					OUT2_STATUS = GPIO_ReadInputDataBit(OUT2_GPIO_Port,OUT2_Pin);/*获取当前的OUT2状态*/
 				GPIO_WriteBit(OUT2_GPIO_Port,OUT2_Pin,(BitAction)OUT2_STATUS);/*保持着OUT1状态*/
-					OUT3_STATUS = GPIO_ReadInputDataBit(OUT3_GPIO_Port,OUT3_Pin);/*获取当前的OUT3状态*/
-				GPIO_WriteBit(OUT3_GPIO_Port,OUT3_Pin,(BitAction)OUT3_STATUS);/*保持着OUT1状态*/
+//					OUT3_STATUS = GPIO_ReadInputDataBit(OUT3_GPIO_Port,OUT3_Pin);/*获取当前的OUT3状态*/
+//				GPIO_WriteBit(OUT3_GPIO_Port,OUT3_Pin,(BitAction)OUT3_STATUS);/*保持着OUT1状态*/
 				
 				/*按着按键3秒内*/
 				SMG_DisplaySET_Step_1_Mode(0,Threshold);

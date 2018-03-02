@@ -6,6 +6,8 @@
 #endif
 #include  "stm32f10x.h"
 
+#define DAC_OUT_Enable	 	 
+	 
 /* Private define ------------------------------------------------------------*/
 #define D5_Pin 										GPIO_Pin_13
 #define D5_GPIO_Port 							GPIOC
@@ -29,11 +31,11 @@
 #define F_GPIO_Port 							GPIOB
 #define G_Pin 										GPIO_Pin_4
 #define G_GPIO_Port 							GPIOB
-#define D4_Pin 										GPIO_Pin_12
+#define D4_Pin 										GPIO_Pin_10
 #define D4_GPIO_Port 							GPIOA
-#define D3_Pin 										GPIO_Pin_9
+#define D3_Pin 										GPIO_Pin_11
 #define D3_GPIO_Port 							GPIOA
-#define D2_Pin 										GPIO_Pin_11
+#define D2_Pin 										GPIO_Pin_12
 #define D2_GPIO_Port 							GPIOA
 #define D1_Pin 										GPIO_Pin_15
 #define D1_GPIO_Port 							GPIOA
@@ -41,42 +43,48 @@
 #define C_GPIO_Port 							GPIOB
 
 
-#define SC_Pin 										GPIO_Pin_12
-#define SC_GPIO_Port 							GPIOB
+//#define SC_Pin 										GPIO_Pin_12
+//#define SC_GPIO_Port 							GPIOB
 
-#define BUTTON_SET_Pin 						GPIO_Pin_11
+#define BUTTON_SET_Pin 						GPIO_Pin_10
 #define BUTTON_SET_GPIO_Port 			GPIOB
-#define BUTTON_MODE_Pin 					GPIO_Pin_13
+#define BUTTON_MODE_Pin 					GPIO_Pin_12
 #define BUTTON_MODE_GPIO_Port 		GPIOB
-#define BUTTON_DOWN_Pin 					GPIO_Pin_10
+#define BUTTON_DOWN_Pin 					GPIO_Pin_13
 #define BUTTON_DOWN_GPIO_Port 		GPIOB
 #define BUTTON_UP_Pin 						GPIO_Pin_14
 #define BUTTON_UP_GPIO_Port 			GPIOB
 
-#define OUT1_Pin 									GPIO_Pin_15
-#define OUT1_GPIO_Port 						GPIOB 
+#define OUT1_Pin 									GPIO_Pin_9
+#define OUT1_GPIO_Port 						GPIOA
 #define OUT2_Pin 									GPIO_Pin_8
 #define OUT2_GPIO_Port 						GPIOA
-#define OUT3_Pin 									GPIO_Pin_10
-#define OUT3_GPIO_Port 						GPIOA
+//#define OUT3_Pin 									GPIO_Pin_10
+//#define OUT3_GPIO_Port 						GPIOA
 
-#define PWM_Pin 							GPIO_Pin_0
-#define PWM_GPIO_Port 				GPIOA 
-#define ATT100_Pin 						GPIO_Pin_1
-#define ATT100_GPIO_Port 			GPIOA 
-#define PWM1_Pin 							GPIO_Pin_2
-#define PWM1_GPIO_Port 				GPIOA 
-#define PWM2_Pin 							GPIO_Pin_3
-#define PWM2_GPIO_Port 				GPIOA 
-	 
-#define ADCIN_1_Pin						GPIO_Pin_5
+//#define PWM_Pin 							GPIO_Pin_0
+//#define PWM_GPIO_Port 				GPIOA 
+//#define ATT100_Pin 						GPIO_Pin_1
+//#define ATT100_GPIO_Port 			GPIOA 
+//#define PWM1_Pin 							GPIO_Pin_2
+//#define PWM1_GPIO_Port 				GPIOA 
+//#define PWM2_Pin 							GPIO_Pin_3
+//#define PWM2_GPIO_Port 				GPIOA 
+/*DAC*/
+#ifdef  DAC_OUT_Enable
+	#define DACOUT1_Pin						GPIO_Pin_4  //?????
+	#define DACOUT1_GPIO_Port			GPIOA
+	#define DACOUT2_Pin						GPIO_Pin_5
+	#define DACOUT2_GPIO_Port			GPIOA
+	#endif 
+#define ADCIN_1_Pin						GPIO_Pin_0
 #define ADCIN_1_GPIO_Port			GPIOA
-#define ADCIN_2_Pin						GPIO_Pin_4
+#define ADCIN_2_Pin						GPIO_Pin_1
 #define ADCIN_2_GPIO_Port			GPIOA
-#define ADCIN_3_Pin						GPIO_Pin_7
-#define ADCIN_3_GPIO_Port			GPIOA
-#define ADCIN_4_Pin						GPIO_Pin_6
-#define ADCIN_4_GPIO_Port			GPIOA
+//#define ADCIN_3_Pin						GPIO_Pin_7
+//#define ADCIN_3_GPIO_Port			GPIOA
+//#define ADCIN_4_Pin						GPIO_Pin_6
+//#define ADCIN_4_GPIO_Port			GPIOA
 
 	 
 #define ADVtimeFlag   		0x01

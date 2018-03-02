@@ -972,7 +972,7 @@ void SMG_DisplayOUT_STATUS(uint8_t OUT1_STATUS,uint8_t OUT2_STATUS,uint8_t OUT3_
 { 
 		OUT1_STATUS = GPIO_ReadInputDataBit(OUT1_GPIO_Port,OUT1_Pin);
 		OUT2_STATUS = !GPIO_ReadInputDataBit(OUT2_GPIO_Port,OUT2_Pin);
-		OUT3_STATUS = !GPIO_ReadInputDataBit(OUT3_GPIO_Port,OUT3_Pin);
+		//OUT3_STATUS = !GPIO_ReadInputDataBit(OUT3_GPIO_Port,OUT3_Pin);
 
 		if(OUT1_STATUS==0 && OUT2_STATUS==1&&OUT3_STATUS==1)
 			SMG_data_Decode_table[0][8] = data_SMG_seg_table[30]|data_SMG_seg_table[31];						//D1	30->b,3->c seg	
