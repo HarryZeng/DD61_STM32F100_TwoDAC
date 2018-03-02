@@ -22,7 +22,7 @@
  extern "C" {
 #endif
 #include  "stm32f10x.h"
-#include  "PG120.h"
+#include "project.h"
 #include 	"stdbool.h"
 #include 	"stdint.h"
 	 

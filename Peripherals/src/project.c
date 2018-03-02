@@ -14,7 +14,7 @@
 //  ----------------------------------------------------------------------------*/
 ///* 包含的头文件 --------------------------------------------------------------*/
 /* Includes ------------------------------------------------------------------*/
-#include "PG120.h"
+#include "project.h"
 #include "key.h"
 #include "display.h"
 #include "SelfStudy.h"
@@ -462,7 +462,7 @@ void GetADCValue(void)
 }
 
 
-void PG120_Function(void)
+void Main_Function(void)
 {
 	GetEEPROM();
 	ATTSet(ATT100);

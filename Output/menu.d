@@ -1,5 +1,5 @@
 ..\output\menu.o: ..\Peripherals\src\menu.c
-..\output\menu.o: ..\Peripherals\inc\PG120.h
+..\output\menu.o: ..\Peripherals\inc\project.h
 ..\output\menu.o: ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\stm32f10x.h
 ..\output\menu.o: ..\Libraries\CMSIS\CM3\CoreSupport\core_cm3.h
 ..\output\menu.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h

@@ -9,7 +9,7 @@
 ..\output\main.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_rcc.h
 ..\output\main.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_usart.h
 ..\output\main.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\misc.h
-..\output\main.o: ..\Peripherals\inc\PG120.h
+..\output\main.o: ..\Peripherals\inc\project.h
 ..\output\main.o: ..\Peripherals\inc\key.h
 ..\output\main.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
 ..\output\main.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h

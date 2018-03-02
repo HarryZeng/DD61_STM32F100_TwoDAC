@@ -1,5 +1,5 @@
 ..\output\selfstudy.o: ..\Peripherals\src\SelfStudy.c
-..\output\selfstudy.o: ..\Peripherals\inc\PG120.h
+..\output\selfstudy.o: ..\Peripherals\inc\project.h
 ..\output\selfstudy.o: ..\Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\stm32f10x.h
 ..\output\selfstudy.o: ..\Libraries\CMSIS\CM3\CoreSupport\core_cm3.h
 ..\output\selfstudy.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h

@@ -1,5 +1,5 @@
 #include "stm32f10x.h"
-#include "PG120.h"
+#include "project.h"
 #include "key.h"
 #include "stdio.h"
 #include "display.h"
@@ -226,7 +226,7 @@ int main(void)
 			/*程序运行次数检测*/
 			ProgramCheck();
 			/*主要运行函数*/
-			PG120_Function();
+			Main_Function();
 		}
 		else
 			while(1)

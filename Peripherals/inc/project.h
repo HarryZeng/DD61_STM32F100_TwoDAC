@@ -101,7 +101,7 @@ extern uint8_t  EventFlag;
 extern int32_t 	DACOUT;
 extern uint32_t 	ShortCircuitCounter;
 	 
-void PG120_Function(void);	 
+void Main_Function(void);	 
 void GetADCAverageValue(uint32_t *AverageValue);
 void GetEEPROM(void);
 void ResetParameter(void);

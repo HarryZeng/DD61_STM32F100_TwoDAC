@@ -23,7 +23,7 @@
 "..\output\flash.o"
 "..\output\selfstudy.o"
 "..\output\main.o"
-"..\output\pg120.o"
+"..\output\project.o"
 "..\output\bsp_init.o"
 --strict --scatter "..\Output\STM32_PG120.sct"
 --summary_stderr --info summarysizes --map --xref --callgraph --symbols
