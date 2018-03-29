@@ -17,7 +17,7 @@
 #define 	OUT1_Value_FLASH_DATA_ADDRESS 	 								FLASH_Base_ADDRESS+0x800
 #define 	SV_FLASH_DATA_ADDRESS 	 												FLASH_Base_ADDRESS+0xC00
 #define 	Threshold_FLASH_DATA_ADDRESS 	 									FLASH_Base_ADDRESS+0x1000
-#define 	ATT100_FLASH_DATA_ADDRESS 	 										FLASH_Base_ADDRESS+0x1400
+#define 	DACOUT1_FLASH_DATA_ADDRESS 	 										FLASH_Base_ADDRESS+0x1400
 #define 	KEY_FLASH_DATA_ADDRESS 	 												FLASH_Base_ADDRESS+0x1800
 #define 	RegisterB_FLASH_DATA_ADDRESS 	 									FLASH_Base_ADDRESS+0x1c00
 #define 	FSV_FLASH_DATA_ADDRESS 	 												FLASH_Base_ADDRESS+0x2000

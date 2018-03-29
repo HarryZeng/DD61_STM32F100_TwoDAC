@@ -17,3 +17,4 @@
 ..\output\selfstudy.o: ..\Peripherals\inc\flash.h
 ..\output\selfstudy.o: ..\Peripherals\inc\display.h
 ..\output\selfstudy.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_tim.h
+..\output\selfstudy.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_dac.h

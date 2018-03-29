@@ -46,7 +46,8 @@ int16_t 	OUT3_TimerCounter=0;
 uint16_t OUT3_Timer=0;
 uint32_t ADCRawValue=0;
 int32_t ADC_Display=0;
-int32_t DACOUT = 1000;
+int32_t DACOUT1 = 1000;
+int32_t DACOUT2 = 1000;
 uint32_t CPV = 0;
 
 
@@ -292,7 +293,7 @@ void JudgeDX(void)
 uint16_t  RunCounter[100];
 uint8_t		Runflag=0;
 uint8_t		RunIndex=0;
-
+uint8_t sample_finish = 0;  
 extern int32_t CSV;
 /*DD61-TWO-DAC funtion*/
 void DMA1_Channel1_IRQHandler(void)  
@@ -313,9 +314,9 @@ void DMA1_Channel1_IRQHandler(void)
 					S_Index = 0;
 					SA_Final = SA_Sum / 4;
 					SB_Final = SB_Sum / 4;
-
+				
 					S_Total_Final = SA_Final - SB_Final;
-					
+					sample_finish = 1;
 					if(S_Total_Final<=0) S_Total_Final=0;
 					if(S_Total_Final>=4095) S_Total_Final=4095;
 					
@@ -516,19 +517,37 @@ uint8_t GetRegisterAState(uint32_t ADCValue)
 *
 **********************/
 
-void GetADCValue(void)
+void GetTotalADCValue(void)
+{
+		uint32_t 	Dispaly_Max=0;
+		uint32_t 	Dispaly_Min=0;
+
+			ADC_Display =S_Total_Final;
+}
+
+
+void Get_SA_Value(uint32_t *SAvalue)
 {
 		uint32_t 	Dispaly_Max=0;
 		uint32_t 	Dispaly_Min=0;
 					/*正常显示*/
-			ADC_Display =ADCRawValue;
+			*SAvalue =SA_Final;
 }
+
+void Get_SB_Value(uint32_t *SBvalue)
+{
+		uint32_t 	Dispaly_Max=0;
+		uint32_t 	Dispaly_Min=0;
+					/*正常显示*/
+			*SBvalue =SB_Final;
+}
+
 
 
 void Main_Function(void)
 {
 	GetEEPROM();
-	ATTSet(ATT100);
+	//ATTSet(ATT100);
 	while(1)
 	{
 		if(0)
@@ -538,22 +557,6 @@ void Main_Function(void)
 		}
 		else
 		{
-
-//				/*短路保护*/
-//				ShortCircuitProtection();
-
-//				while(ConfirmShortCircuit)
-//				{
-//						GPIO_WriteBit(OUT1_GPIO_Port,OUT1_Pin,Bit_RESET);
-//						GPIO_WriteBit(OUT2_GPIO_Port,OUT2_Pin,Bit_RESET);/*马上拉低OUT*/ /*发现短路，将OUT引脚拉低*/
-//						//GPIO_WriteBit(OUT3_GPIO_Port,OUT3_Pin,Bit_RESET);/*马上拉低OUT*/ /*发现短路，将OUT引脚拉低*/
-//						if((ShortCircuitLastTime - ShortCircuitTimer)>=2000)
-//						{
-//								ConfirmShortCircuit = 0;
-//								ShortCircuitCounter = 0;
-//								ShortCircuit=0;
-//						}
-//				}
 				
 				/*正常显示模式*/
 				DisplayMODE();
@@ -1499,7 +1502,7 @@ void GetEEPROM(void)
 			OUT1_Mode.DelayValue 	= ReadFlash(OUT1_Value_FLASH_DATA_ADDRESS);
 			SV 										= ReadFlash(SV_FLASH_DATA_ADDRESS);
 			Threshold 						= ReadFlash(Threshold_FLASH_DATA_ADDRESS);
-			ATT100 								= ReadFlash(ATT100_FLASH_DATA_ADDRESS);
+			DACOUT1 							= ReadFlash(DACOUT1_FLASH_DATA_ADDRESS);
 			KEY 									= ReadFlash(KEY_FLASH_DATA_ADDRESS);
 			RegisterB 						= ReadFlash(RegisterB_FLASH_DATA_ADDRESS);
 			FSV 									= ReadFlash(FSV_FLASH_DATA_ADDRESS);
@@ -1540,7 +1543,7 @@ void ResetParameter(void)
 		Test_Delay(50); 
 		WriteFlash(Threshold_FLASH_DATA_ADDRESS,Threshold);
 		Test_Delay(50); 
-		WriteFlash(ATT100_FLASH_DATA_ADDRESS,ATT100);
+		WriteFlash(DACOUT1_FLASH_DATA_ADDRESS,DACOUT1);
 		Test_Delay(50); 
 		WriteFlash(KEY_FLASH_DATA_ADDRESS,KEY);
 		Test_Delay(50); 

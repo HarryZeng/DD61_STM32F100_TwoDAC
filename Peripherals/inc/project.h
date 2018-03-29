@@ -42,10 +42,6 @@
 #define C_Pin 										GPIO_Pin_3
 #define C_GPIO_Port 							GPIOB
 
-
-//#define SC_Pin 										GPIO_Pin_12
-//#define SC_GPIO_Port 							GPIOB
-
 #define BUTTON_SET_Pin 						GPIO_Pin_10
 #define BUTTON_SET_GPIO_Port 			GPIOB
 #define BUTTON_MODE_Pin 					GPIO_Pin_12
@@ -59,17 +55,7 @@
 #define OUT1_GPIO_Port 						GPIOA
 #define OUT2_Pin 									GPIO_Pin_8
 #define OUT2_GPIO_Port 						GPIOA
-//#define OUT3_Pin 									GPIO_Pin_10
-//#define OUT3_GPIO_Port 						GPIOA
 
-//#define PWM_Pin 							GPIO_Pin_0
-//#define PWM_GPIO_Port 				GPIOA 
-//#define ATT100_Pin 						GPIO_Pin_1
-//#define ATT100_GPIO_Port 			GPIOA 
-//#define PWM1_Pin 							GPIO_Pin_2
-//#define PWM1_GPIO_Port 				GPIOA 
-//#define PWM2_Pin 							GPIO_Pin_3
-//#define PWM2_GPIO_Port 				GPIOA 
 /*DAC*/
 #ifdef  DAC_OUT_Enable
 	#define DACOUT1_Pin						GPIO_Pin_4  //?????
@@ -81,10 +67,7 @@
 #define ADCIN_1_GPIO_Port			GPIOA
 #define ADCIN_2_Pin						GPIO_Pin_1
 #define ADCIN_2_GPIO_Port			GPIOA
-//#define ADCIN_3_Pin						GPIO_Pin_7
-//#define ADCIN_3_GPIO_Port			GPIOA
-//#define ADCIN_4_Pin						GPIO_Pin_6
-//#define ADCIN_4_GPIO_Port			GPIOA
+
 
 	 
 #define ADVtimeFlag   		0x01
@@ -106,15 +89,19 @@ extern int16_t Threshold;
 extern uint8_t 	RegisterA;
 extern uint32_t ADCValue;
 extern uint8_t  EventFlag; 
-extern int32_t 	DACOUT;
+extern int32_t 	DACOUT1;
+extern int32_t 	DACOUT2;
 extern uint32_t 	ShortCircuitCounter;
-	 
+extern int32_t		S_Total_Final;
+
+void Get_SA_Value(uint32_t *SAvalue);
+void Get_SB_Value(uint32_t *SBvalue);
 void Main_Function(void);	 
 void GetADCAverageValue(uint32_t *AverageValue);
 void GetEEPROM(void);
 void ResetParameter(void);
 void SetOUT1Status(void);
-void GetADCValue(void);
+void GetTotalADCValue(void);
 	#ifdef __cplusplus
 	}
 	#endif

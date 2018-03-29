@@ -47,7 +47,7 @@ void EraseFlash(void)
 	InitInternalFlash(OUT1_Value_FLASH_DATA_ADDRESS);
 	InitInternalFlash(SV_FLASH_DATA_ADDRESS);
 	InitInternalFlash(Threshold_FLASH_DATA_ADDRESS);
-	InitInternalFlash(ATT100_FLASH_DATA_ADDRESS);
+	InitInternalFlash(DACOUT1_FLASH_DATA_ADDRESS);
 	InitInternalFlash(KEY_FLASH_DATA_ADDRESS);
 	InitInternalFlash(RegisterB_FLASH_DATA_ADDRESS);
 	InitInternalFlash(FSV_FLASH_DATA_ADDRESS);

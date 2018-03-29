@@ -262,10 +262,10 @@ void MenuOne_ATT100(void)
 		if(EventFlag&Blink500msFlag && Flashflag==1) 
 		{
 			EventFlag = EventFlag &(~Blink500msFlag);  //清楚标志位
-			WriteFlash(ATT100_FLASH_DATA_ADDRESS,ATT100);
+			//WriteFlash(ATT100_FLASH_DATA_ADDRESS,ATT100);
 		}
 		
-		ATTSet(ATT100);/*设置ATT的输出*/
+		//ATTSet(ATT100);/*设置ATT的输出*/
 	
 }
 

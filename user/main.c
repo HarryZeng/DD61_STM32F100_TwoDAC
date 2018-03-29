@@ -150,7 +150,7 @@ void TIM3_IRQHandler(void)
 				}
 				if(timenum>=5000)	/*5000*100us = 500,000us = 500ms*/
 				{
-					GetADCValue();
+					GetTotalADCValue();
 					timeflag=!timeflag;
 					EventFlag = EventFlag | Blink500msFlag;
 					timenum = 0;

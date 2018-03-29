@@ -159,9 +159,9 @@ void IO_GPIO_INIT(void)
 
 void TIM4_init(void)
 {
-	TIM_TimeBaseInitTypeDef timer_init_structure; 
-	NVIC_InitTypeDef NVIC_InitStructure;
-	TIM_OCInitTypeDef         TIM_OCInitStructure;
+	TIM_TimeBaseInitTypeDef 		timer_init_structure; 
+	NVIC_InitTypeDef 						NVIC_InitStructure;
+	TIM_OCInitTypeDef         	TIM_OCInitStructure;
 	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE); 
 	
@@ -522,6 +522,12 @@ void DAC_OUT_Init(void)
 		DAC_InitStructure.DAC_LFSRUnmask_TriangleAmplitude = DAC_LFSRUnmask_Bit0;
 		DAC_InitStructure.DAC_OutputBuffer = DAC_OutputBuffer_Enable ;  //使能输出缓存
 		DAC_Init(DAC_Channel_1,&DAC_InitStructure);    //初始化 DAC 通道 1
+	
+		DAC_InitStructure.DAC_Trigger = DAC_Trigger_Software;  //软件触发DA转换
+		DAC_InitStructure.DAC_WaveGeneration = DAC_WaveGeneration_None;//不产生波形
+		DAC_InitStructure.DAC_LFSRUnmask_TriangleAmplitude = DAC_LFSRUnmask_Bit0;
+		DAC_InitStructure.DAC_OutputBuffer = DAC_OutputBuffer_Enable ;  //使能输出缓存
+		DAC_Init(DAC_Channel_2,&DAC_InitStructure);    //初始化 DAC 通道 1
 
 }
 
