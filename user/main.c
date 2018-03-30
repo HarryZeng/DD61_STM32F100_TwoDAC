@@ -164,11 +164,11 @@ void TIM3_IRQHandler(void)
 ******************************************/
 void bsp_init(void)  
 {  
-		RCC_Configuration();  
+		RCC_Configuration(); 
 		PWR_PVDLevelConfig(PWR_PVDLevel_2V9);/*设置PVD电压检测*/
     PWR_PVDCmd(ENABLE);
 		TIM3_init();
-		TIM4_init();
+		//TIM4_init();
 		ADC1_Configuration();
 		#ifdef  DAC_OUT_Enable
 			DAC_Configuration();
@@ -223,7 +223,8 @@ int main(void)
 	
 		CheckFLag = FlashCheck();
 	
-		if(CheckFLag)
+		if(1)
+		//if(CheckFLag)
 		{
 			/*程序运行次数检测*/
 			ProgramCheck();

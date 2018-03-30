@@ -18,16 +18,18 @@ void RCC_Configuration(void)
 	while(RCC_GetFlagStatus(RCC_FLAG_HSIRDY)== RESET);//??HSI?? 
 	RCC_HCLKConfig(RCC_SYSCLK_Div1);   /*??AHB??(HCLK) RCC_SYSCLK_Div1棗AHB?? = ???*/  
 	RCC_PCLK2Config(RCC_HCLK_Div1);   /* ????AHB??(PCLK2)RCC_HCLK_Div1棗APB2?? = HCLK*/     
-	RCC_PCLK1Config(RCC_HCLK_Div2); /*????AHB??(PCLK1)RCC_HCLK_Div2棗APB1?? = HCLK / 2*/      
-
-	FLASH_SetLatency(FLASH_Latency_2);	//FLASH_Latency_2 2????
+	RCC_PCLK1Config(RCC_HCLK_Div1); /*????AHB??(PCLK1)RCC_HCLK_Div2棗APB1?? = HCLK / 2*/      
+	
+	FLASH_SetLatency(FLASH_Latency_0);	//FLASH_Latency_2 2????
 	FLASH_PrefetchBufferCmd(FLASH_PrefetchBuffer_Enable);//???????
 
-	RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_16);/*??PLL????????,???8/2*16=64Mhz*/    
+	RCC_PLLConfig(RCC_PLLSource_HSI_Div2, RCC_PLLMul_6);/*??PLL????????,???8/2*16=64Mhz*/    
 	RCC_PLLCmd(ENABLE); 	 /*??PLL */ 
 	while(RCC_GetFlagStatus(RCC_FLAG_PLLRDY) == RESET) ; /*?????RCC???(PLL?????)????*/    
 	RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);  /*??????(SYSCLK) */  
 	while(RCC_GetSYSCLKSource() != 0x08);     /*0x08:PLL?????? */	
+	
+	
 }
 
 /*******************************************
@@ -452,7 +454,7 @@ void ADC1_Init(void)
 	
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1	, ENABLE );	  //使能ADC1通道时钟
  
-	RCC_ADCCLKConfig(RCC_PCLK2_Div8);   //设置ADC分频因子6 64M/8=8,ADC最大时间不能超过14M
+	RCC_ADCCLKConfig(RCC_PCLK2_Div2);   //设置ADC分频因子6 64M/8=8,ADC最大时间不能超过14M
   
   /* ADC1 configuration ------------------------------------------------------*/
   ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
