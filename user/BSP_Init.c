@@ -216,22 +216,23 @@ void TIM3_init(void)
 	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE); 
 	
-	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;                //使能TIM3中断通道  
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority= 2;  
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority= 2;          
-	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;     
-	NVIC_Init(&NVIC_InitStructure);
-	
+//	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;                //使能TIM3中断通道  
+//	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority= 2;  
+//	NVIC_InitStructure.NVIC_IRQChannelSubPriority= 2;          
+//	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;     
+//	NVIC_Init(&NVIC_InitStructure);
+//	
 	/*TIM3*/
 	TIM_DeInit(TIM3);                                               //复位TIM3
 	TIM_TimeBaseStructInit(&timer_init_structure);                  //初始化TIM结构体  
 
 	timer_init_structure.TIM_ClockDivision = TIM_CKD_DIV1;          //系统时钟,不分频,24M  
 	timer_init_structure.TIM_CounterMode = TIM_CounterMode_Up;      //向上计数模式  
-	timer_init_structure.TIM_Period = 120;                          //每300 uS触发一次中断,??ADC  
-	timer_init_structure.TIM_Prescaler = 63;                      //计数时钟分频,f=1M,systick=1 uS  
+	timer_init_structure.TIM_Period = 50;                          //每300 uS触发一次中断,??ADC  
+	timer_init_structure.TIM_Prescaler = 23;                      //计数时钟分频,f=1M,systick=1 uS  
 	timer_init_structure.TIM_RepetitionCounter = 0x00;              //发生0+1的update事件产生中断 
 	
+	TIM_SelectOutputTrigger(TIM3, TIM_TRGOSource_Update);							//选择TIM1的timer为触发源  
 	TIM_TimeBaseInit(TIM3, &timer_init_structure);  
 	TIM_ITConfig(TIM3, TIM_IT_Update, ENABLE);                       //使能TIM3中断
 	TIM_Cmd(TIM3, ENABLE);                                          //使能TIM3
@@ -239,15 +240,13 @@ void TIM3_init(void)
 }
 
 
-void TIM2_init(void)  
-{  
-		TIM_TimeBaseInitTypeDef   TIM_TimeBaseStructure;
+void TIM2_PWM_OUT_Init(void)
+{
 		TIM_OCInitTypeDef         TIM_OCInitStructure;
-    NVIC_InitTypeDef nvic_init_structure;  
-  	GPIO_InitTypeDef GPIO_InitStructure;
-
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
-    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);  
+		
+		GPIO_InitTypeDef GPIO_InitStructure;
+		
+		RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);  
   
     GPIO_StructInit(&GPIO_InitStructure);  
     //GPIOA                                                         //PA-0~3 
@@ -256,25 +255,9 @@ void TIM2_init(void)
 		GPIO_InitStructure.GPIO_Mode=GPIO_Mode_AF_PP;
 		GPIO_Init(GPIOA,&GPIO_InitStructure);
 	
-		NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
-		nvic_init_structure.NVIC_IRQChannelPreemptionPriority = 1;
-		nvic_init_structure.NVIC_IRQChannelPreemptionPriority= 1;
-		nvic_init_structure.NVIC_IRQChannel = TIM2_IRQn;                //使能TIM2中断通道  
-    nvic_init_structure.NVIC_IRQChannelCmd = ENABLE;                //使能TIM2中断  
-    NVIC_Init(&nvic_init_structure); 
-			
-		/*TIM2 Base Init*/
-    TIM_DeInit(TIM2);                                               //复位TIM2  
-    TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);                  //初始化TIM结构体  
-		TIM_TimeBaseStructure.TIM_Period=2880;                 //ARR  1728->27us,1920->30us,2048->32us,2496->39us,2560->40us,2688->42us,2880->45us,3200->50us
-		TIM_TimeBaseStructure.TIM_Prescaler=0;
-		TIM_TimeBaseStructure.TIM_ClockDivision=TIM_CKD_DIV1; 
-		TIM_TimeBaseStructure.TIM_CounterMode=TIM_CounterMode_Up; 
-		TIM_TimeBaseStructure.TIM_RepetitionCounter = 0x0;
-		TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
-		TIM_ARRPreloadConfig(TIM2, ENABLE);
 
-		/*OCInit Channel 1 Configuration in PWM mode */
+		
+			/*OCInit Channel 1 Configuration in PWM mode */
 		TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;                                
 		TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;         
 		TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Disable;
@@ -298,12 +281,43 @@ void TIM2_init(void)
 		TIM_OC4Init(TIM2,&TIM_OCInitStructure);                                                 
 		TIM_OC4PreloadConfig(TIM2, TIM_OCPreload_Enable);	
 		
-    //TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);                      //使能TIM2中断
-		TIM_ITConfig(TIM2, TIM_IT_CC4 , ENABLE);
+		TIM_CtrlPWMOutputs(TIM2,ENABLE);
 		
+}
+
+
+void TIM2_init(void)  
+{  
+		TIM_TimeBaseInitTypeDef   TIM_TimeBaseStructure;
+		NVIC_InitTypeDef nvic_init_structure;
+	
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
+
+		/*MVIC*/
+		NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
+		nvic_init_structure.NVIC_IRQChannelPreemptionPriority = 2;
+		nvic_init_structure.NVIC_IRQChannelPreemptionPriority= 2;
+		nvic_init_structure.NVIC_IRQChannel = TIM2_IRQn;                //使能TIM2中断通道  
+    nvic_init_structure.NVIC_IRQChannelCmd = ENABLE;                //使能TIM2中断  
+    NVIC_Init(&nvic_init_structure); 
+		
+		/*TIM2 Base Init*/
+    TIM_DeInit(TIM2);                                               //复位TIM2  
+		TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;          //系统时钟,不分频,24M  
+		TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;      //向上计数模式  
+		TIM_TimeBaseStructure.TIM_Period = 120;                          //每300 uS触发一次中断,??ADC  
+		TIM_TimeBaseStructure.TIM_Prescaler = 23;                      //计数时钟分频,f=1M,systick=1 uS  
+		TIM_TimeBaseStructure.TIM_RepetitionCounter = 0x00;              //发生0+1的update事件产生中断 
+		
+		TIM_TimeBaseInit(TIM2, &TIM_TimeBaseStructure);
+		TIM_ARRPreloadConfig(TIM2, ENABLE);
+		TIM_ITConfig(TIM2, TIM_IT_Update, ENABLE);                      //使能TIM2中断
+
+		//TIM2_PWM_OUT_Init();
+
 		TIM_Cmd(TIM2, ENABLE);
 		
-		TIM_CtrlPWMOutputs(TIM2,ENABLE);
+		
 }  
 
 
@@ -384,9 +398,6 @@ void TIM1_Init(void)
   /* TIM1 ????? */
 }
 
-
-
-
 void ADC1_GPIO_Config()
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
@@ -459,16 +470,15 @@ void ADC1_Init(void)
   /* ADC1 configuration ------------------------------------------------------*/
   ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
   ADC_InitStructure.ADC_ScanConvMode = ENABLE;
-  ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;
-  ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T4_CC4;
-	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;  /*使用软件触发*/
+  ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
+  ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T3_TRGO;
   ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
   ADC_InitStructure.ADC_NbrOfChannel = 2;
   ADC_Init(ADC1, &ADC_InitStructure);
 
   /* ADC1 regular configuration */ 
-  ADC_RegularChannelConfig(ADC1, ADC_Channel_4, 1, ADC_SampleTime_7Cycles5);
-  ADC_RegularChannelConfig(ADC1, ADC_Channel_5, 2, ADC_SampleTime_7Cycles5);
+  ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 1, ADC_SampleTime_7Cycles5);
+  ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 2, ADC_SampleTime_7Cycles5);
 //  ADC_RegularChannelConfig(ADC1, ADC_Channel_7, 3, ADC_SampleTime_7Cycles5);
 //	ADC_RegularChannelConfig(ADC1, ADC_Channel_6, 4, ADC_SampleTime_7Cycles5);
 
@@ -486,7 +496,6 @@ void ADC1_Init(void)
 void ADC1_Configuration(void)
 {
     ADC1_GPIO_Config();
-    TIM2_init();
     ADC1_DMA1_Init();
     ADC1_Init();
 }

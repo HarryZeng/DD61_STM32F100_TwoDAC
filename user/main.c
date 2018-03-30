@@ -76,52 +76,12 @@ void TIM4_IRQHandler()
 
 
 
+extern bool timeflag;
+extern uint32_t tempPress;
 
 void TIM2_IRQHandler()  
 {
-    if(TIM_GetITStatus(TIM2, TIM_FLAG_Update))            //判断发生update事件中断  
-    {  
-        TIM_ClearITPendingBit(TIM2, TIM_FLAG_Update);     //清除update事件中断标志
-					
-    }  
-		
-		if (TIM_GetITStatus(TIM2, TIM_IT_CC4) != RESET) 
-		{
-				TIM_ClearITPendingBit(TIM2, TIM_IT_CC4);
-				ADC_SoftwareStartConvCmd(ADC1, ENABLE);		//使能指定的ADC1的软件转换启动功能	
-			TIM_SetCounter(TIM4,0x00);
-				//GPIO_WriteBit(GPIOA, GPIO_Pin_10, (BitAction)(1 - GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin_10)));
-		}
-}  
-
-void TIM1_BRK_UP_TRG_COM_IRQHandler()  
-{  
-    if(TIM_GetITStatus(TIM1, TIM_FLAG_Update))            //判断发生update事件中断  
-    {
-
-      TIM_ClearITPendingBit(TIM1, TIM_FLAG_Update);     //清除update事件中断标志
-    }  
-} 
-
-///*重设TIM1进入OnePule模式，用于控制脉冲个数*/
-
-//void ChangeTIM1ToOnePulse(int Counter)
-//{
-//	TIM_TimeBaseInitTypeDef timer_init_structure;
-//	TIM_Cmd(TIM1, DISABLE);
-//	
-//	timer_init_structure.TIM_RepetitionCounter = Counter;
-//  TIM_TimeBaseInit(TIM1, &timer_init_structure);
-//	
-//	
-//	TIM_SelectOnePulseMode(TIM1,TIM_OPMode_Single);
-//	TIM_Cmd(TIM1, DISABLE);
-//}
-extern bool timeflag;
-extern uint32_t tempPress;
-void TIM3_IRQHandler(void)
-{
-	  if(TIM_GetITStatus(TIM3, TIM_IT_Update))            //判断发生update事件中断  
+	  if(TIM_GetITStatus(TIM2, TIM_IT_Update))            //判断发生update事件中断  
     { 
 				timenum++;
 				
@@ -155,6 +115,25 @@ void TIM3_IRQHandler(void)
 					EventFlag = EventFlag | Blink500msFlag;
 					timenum = 0;
 				}
+			TIM_ClearITPendingBit(TIM2, TIM_IT_Update);     //清除update事件中断标志
+		}
+}  
+
+void TIM1_BRK_UP_TRG_COM_IRQHandler()  
+{  
+    if(TIM_GetITStatus(TIM1, TIM_FLAG_Update))            //判断发生update事件中断  
+    {
+
+      TIM_ClearITPendingBit(TIM1, TIM_FLAG_Update);     //清除update事件中断标志
+    }  
+} 
+
+/*TIM3 IRQ*/
+
+void TIM3_IRQHandler(void)
+{
+	  if(TIM_GetITStatus(TIM3, TIM_IT_Update))            //判断发生update事件中断  
+    { 
 			TIM_ClearITPendingBit(TIM3, TIM_IT_Update);     //清除update事件中断标志
 		}
 }
@@ -167,8 +146,8 @@ void bsp_init(void)
 		RCC_Configuration(); 
 		PWR_PVDLevelConfig(PWR_PVDLevel_2V9);/*设置PVD电压检测*/
     PWR_PVDCmd(ENABLE);
+		TIM2_init();
 		TIM3_init();
-		//TIM4_init();
 		ADC1_Configuration();
 		#ifdef  DAC_OUT_Enable
 			DAC_Configuration();

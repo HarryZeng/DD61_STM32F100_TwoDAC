@@ -25,7 +25,7 @@
 "..\output\main.o"
 "..\output\project.o"
 "..\output\bsp_init.o"
---strict --scatter "..\Output\STM32_PG120.sct"
+--strict --scatter "..\Output\DD61_F100_2DAC.sct"
 --summary_stderr --info summarysizes --map --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
---list "..\Listing\STM32_PG120.map" -o ..\Output\STM32_PG120.axf
+--list "..\Listing\DD61_F100_2DAC.map" -o ..\Output\DD61_F100_2DAC.axf
