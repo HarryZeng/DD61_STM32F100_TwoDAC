@@ -29,6 +29,8 @@ int8_t DSC=1;
 
 OUT1_DELAY_MODE_STRUCT OUT1_Mode={TOFF,10};
 int8_t DispalyNo=0;
+/*CSV菜单*/
+void MenuOne_CSV(void);
 /*DSC  菜单*/
 void Menu_DSC(void);
 /*ATT100设定菜单*/
@@ -65,66 +67,66 @@ void menu(void)
 				S1024 = 0;
 				ModeButton.PressCounter = 0;
 				UpButton.PressCounter = 0;
-				MenuOne_ATT100();   
+				MenuOne_CSV();   
 				while(ModeButton.PressCounter==1)
 				{
-					MenuOne_ATT100();
+					MenuOne_CSV();
 				}	
-				
-				while(ModeButton.PressCounter==2)
-				{
-					Menu_PERCENTAGE();
-				}
-				
-				while(ModeButton.PressCounter==3)
-				{
-					Menu_DSC();
-				}
-				
-				while(ModeButton.PressCounter==4)
-				{
-					/*DETECT*//*数码管显示*/
-					SMG_DisplayModeDETECT(displayModeONE_FLAG);
-					/*******************************/
-					/*Up Button*/
-					if((UpButton.PressCounter !=lastCounter)&&(UpButton.Effect==PressShort))
-					{
-						lastCounter = UpButton.PressCounter;
-						UpButton.PressCounter = 0;
-						if(displayModeONE_FLAG==0)
-							displayModeONE_FLAG = 1;
-						else 
-							displayModeONE_FLAG=0;
-						WriteFlash(DETECT_FLASH_DATA_ADDRESS,displayModeONE_FLAG);
-					}
+//				
+//				while(ModeButton.PressCounter==2)
+//				{
+//					Menu_PERCENTAGE();
+//				}
+//				
+//				while(ModeButton.PressCounter==3)
+//				{
+//					Menu_DSC();
+//				}
+//				
+//				while(ModeButton.PressCounter==4)
+//				{
+//					/*DETECT*//*数码管显示*/
+//					SMG_DisplayModeDETECT(displayModeONE_FLAG);
+//					/*******************************/
+//					/*Up Button*/
+//					if((UpButton.PressCounter !=lastCounter)&&(UpButton.Effect==PressShort))
+//					{
+//						lastCounter = UpButton.PressCounter;
+//						UpButton.PressCounter = 0;
+//						if(displayModeONE_FLAG==0)
+//							displayModeONE_FLAG = 1;
+//						else 
+//							displayModeONE_FLAG=0;
+//						WriteFlash(DETECT_FLASH_DATA_ADDRESS,displayModeONE_FLAG);
+//					}
 
-					/*Down Button*/
-					else if(DownButton.PressCounter !=lastCounter && DownButton.Effect==PressShort)
-					{
-						DownButton.PressCounter = 0;
-						if(displayModeONE_FLAG==0)
-							displayModeONE_FLAG = 1;
-						else 
-							displayModeONE_FLAG=0;
-						WriteFlash(DETECT_FLASH_DATA_ADDRESS,displayModeONE_FLAG);
-					}
-				}
-				
-				
-				while(ModeButton.PressCounter==5)
-				{
-					/*SV COUNTER设定菜单*/
-					MenuOne_SV();
-				}
-				
-				while(ModeButton.PressCounter==6)
-				{
-					/*FSV COUNTER设定菜单*/
-					MenuOne_FSV();
-				}
-				
+//					/*Down Button*/
+//					else if(DownButton.PressCounter !=lastCounter && DownButton.Effect==PressShort)
+//					{
+//						DownButton.PressCounter = 0;
+//						if(displayModeONE_FLAG==0)
+//							displayModeONE_FLAG = 1;
+//						else 
+//							displayModeONE_FLAG=0;
+//						WriteFlash(DETECT_FLASH_DATA_ADDRESS,displayModeONE_FLAG);
+//					}
+//				}
+//				
+//				
+//				while(ModeButton.PressCounter==5)
+//				{
+//					/*SV COUNTER设定菜单*/
+//					MenuOne_SV();
+//				}
+//				
+//				while(ModeButton.PressCounter==6)
+//				{
+//					/*FSV COUNTER设定菜单*/
+//					MenuOne_FSV();
+//				}
+//				
 				/*显示先前定时器选定菜单*/
-				if(ModeButton.PressCounter==7 && ModeButton.Effect==PressShort)
+				if(ModeButton.PressCounter==2 && ModeButton.Effect==PressShort)
 				{
 					if(OUT1_Mode.DelayMode == TOFF)
 						DispalyNo = 0;
@@ -135,16 +137,16 @@ void menu(void)
 					else if(OUT1_Mode.DelayMode == SHOT)
 						DispalyNo = 3;
 				}
-				while(ModeButton.Effect==PressShort && ModeButton.PressCounter==7)
+				while(ModeButton.Effect==PressShort && ModeButton.PressCounter==2)
 				{
 						MenuTwo_OUT1_DelaySET();
 				}
-				while(ModeButton.Effect==PressShort && ModeButton.PressCounter==9)
+				while(ModeButton.Effect==PressShort && ModeButton.PressCounter==4)
 				{
 						END_Display();
 						DX_Flag = 1;
 						/*再短按MODE，则退出菜单*/
-						if(ModeButton.Effect==PressShort && ModeButton.PressCounter>=10) 
+						if(ModeButton.Effect==PressShort && ModeButton.PressCounter>=5) 
 						{
 							ModeButton.PressCounter = 0;
 							ModeButton.Status = Release;
@@ -156,7 +158,112 @@ void menu(void)
 		}
 	}
 }
-
+/*CSV设定菜单*/
+void MenuOne_CSV(void)
+{
+	static uint8_t lastCounter;
+	uint8_t Flashflag=0;
+	
+	SMG_DisplaCSV(CSV);
+	/*Up Button*/
+	if(UpButton.PressCounter !=lastCounter && UpButton.Effect==PressShort)
+	{
+		lastCounter = UpButton.PressCounter;
+		UpButton.PressCounter = 0;
+		CSV = CSV+1;
+		Flashflag = 1;
+	}
+	else 	if(UpButton.Status==Press&&(UpButton.Effect==PressLong))
+	{				/*还按着按键，并且时间超过长按时间*/
+		UpButton.PressCounter = 0;
+		if(UpButton.PressTimer<KEY_LEVEL_1)
+		{
+			if(UpButton.PressTimer%KEY_LEVEL_1_SET==0&&tempPress == 1)
+			{
+				tempPress = 0;
+				CSV = CSV+1;
+				Flashflag = 1;
+			}
+		}
+		else if(UpButton.PressTimer>KEY_LEVEL_1&&UpButton.PressTimer<KEY_LEVEL_2)
+		{
+			if(UpButton.PressTimer%KEY_LEVEL_2_SET==0&&tempPress == 1)
+			{
+				tempPress = 0;
+				CSV = CSV+2;
+				Flashflag = 1;
+			}
+		}
+		else 
+		{
+			if(UpButton.PressTimer%KEY_LEVEL_3_SET==0&&tempPress == 1)
+			{
+				tempPress = 0;
+				CSV = CSV+5;
+				Flashflag = 1;
+			}
+		}
+	}	
+	else
+	{
+		UpButton.Effect = PressShort;
+	}
+	
+	/*Down Button*/
+	if(DownButton.PressCounter !=lastCounter && DownButton.Effect==PressShort)
+	{
+		DownButton.PressCounter = 0;
+		CSV = CSV-1;
+		Flashflag = 1;
+	}
+	else 	if(DownButton.Status==Press&&(DownButton.Effect==PressLong))
+	{				/*还按着按键，并且时间超过长按时间*/
+		DownButton.PressCounter = 0;
+		if(DownButton.PressTimer<KEY_LEVEL_1)
+		{
+			if(DownButton.PressTimer%KEY_LEVEL_1_SET==0&&tempPress == 1)
+			{
+				tempPress = 0;
+				CSV = CSV-1;
+				Flashflag = 1;
+			}
+		}
+		else if(DownButton.PressTimer>KEY_LEVEL_1&&DownButton.PressTimer<KEY_LEVEL_2)
+		{
+			if(DownButton.PressTimer%KEY_LEVEL_2_SET==0&&tempPress == 1)
+			{
+				tempPress = 0;
+				CSV = CSV-2;
+				Flashflag = 1;
+			}
+		}
+		else 
+		{
+			if(DownButton.PressTimer%KEY_LEVEL_3_SET==0&&tempPress == 1)
+			{
+				tempPress = 0;
+				CSV = CSV-5;
+				Flashflag = 1;
+			}
+		}
+	}
+	else
+	{
+		DownButton.Effect = PressShort;
+	}
+	
+	if(CSV<=1)
+			CSV =1;
+	else if(CSV>=9999)
+			CSV =9999;
+	
+		if(EventFlag&Blink500msFlag && Flashflag==1) 
+		{
+			EventFlag = EventFlag &(~Blink500msFlag);  //清楚标志位
+			WriteFlash(CSV_FLASH_DATA_ADDRESS,CSV);
+		}
+		
+}
 
 /*ATT100设定菜单*/
 extern uint32_t ADC_Display;//ADC显示
@@ -515,7 +622,7 @@ void MenuOne_SV(void)
 		if(EventFlag&Blink500msFlag && Flashflag==1) 
 		{
 			EventFlag = EventFlag &(~Blink500msFlag);  //清楚标志位
-			WriteFlash(SV_FLASH_DATA_ADDRESS,SV);
+			//WriteFlash(SV_FLASH_DATA_ADDRESS,SV);
 		}
 }
 
@@ -622,7 +729,7 @@ void MenuOne_FSV(void)
 		if(EventFlag&Blink500msFlag && Flashflag==1) 
 		{
 			EventFlag = EventFlag &(~Blink500msFlag);  //清楚标志位
-			WriteFlash(FSV_FLASH_DATA_ADDRESS,FSV);
+			//WriteFlash(FSV_FLASH_DATA_ADDRESS,FSV);
 		}
 	
 }
@@ -653,9 +760,9 @@ void MenuTwo_OUT1_DelaySET(void)
 				if(DispalyNo<0)
 					DispalyNo = 3;
 			}
-			if(ModeButton.PressCounter>=8) 
+			if(ModeButton.PressCounter>=3) 
 			{
-				ModeButton.PressCounter = 9; //用于跳到END菜单
+				ModeButton.PressCounter = 4; //用于跳到END菜单
 				break;
 			}
 		}
@@ -680,7 +787,7 @@ void MenuTwo_OUT1_DelaySET(void)
 					if(DispalyNo<0)
 						DispalyNo = 3;
 				}
-				if(ModeButton.PressCounter>8) break;
+				if(ModeButton.PressCounter>3) break;
 		}
 		/*ON_D mode*/
 		while(DispalyNo==2)
@@ -702,7 +809,7 @@ void MenuTwo_OUT1_DelaySET(void)
 					if(DispalyNo<0)
 						DispalyNo = 3;
 				}
-				if(ModeButton.PressCounter>8) break;
+				if(ModeButton.PressCounter>3) break;
 		}
 		while(DispalyNo==3)
 		{
@@ -723,7 +830,7 @@ void MenuTwo_OUT1_DelaySET(void)
 					if(DispalyNo<0)
 						DispalyNo = 3;
 				}
-				if(ModeButton.PressCounter>8) break;
+				if(ModeButton.PressCounter>3) break;
 		}
 		
 //		while(DispalyNo==4)
@@ -784,7 +891,7 @@ void MenuTwo_OUT1_OFFD(void)
 			SMG_DisplayMenuTwo_OFFD();
 		}
 		/*短按MODE后，进入OFFD的设置子菜单*/
-		while(ModeButton.Effect==PressShort && ModeButton.PressCounter==8)
+		while(ModeButton.Effect==PressShort && ModeButton.PressCounter==3)
 		{
 			OUT1_Mode.DelayMode = OFFD;
 			/*显示OFFD value*/
@@ -919,7 +1026,7 @@ void MenuTwo_OUT1_ON_D(void)
 			SMG_DisplayMenuTwo_ON_Delay();
 		}
 		/*短按MODE后，进入ON_D的设置子菜单*/
-		while(ModeButton.Effect==PressShort && ModeButton.PressCounter==8)
+		while(ModeButton.Effect==PressShort && ModeButton.PressCounter==3)
 		{
 			OUT1_Mode.DelayMode = ON_D;
 			/*显示ON_D value*/
@@ -1055,7 +1162,7 @@ void MenuTwo_OUT1_SHOT(void)
 			SMG_DisplayMenuTwo_SHOT();
 		}
 		/*短按MODE后，进入SHOT的设置子菜单*/
-		while(ModeButton.Effect==PressShort && ModeButton.PressCounter==8)
+		while(ModeButton.Effect==PressShort && ModeButton.PressCounter==3)
 		{
 			OUT1_Mode.DelayMode = SHOT;
 			/*显示SHOT value*/			

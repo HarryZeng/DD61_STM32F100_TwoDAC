@@ -6,6 +6,11 @@
 #endif
 #include  "stm32f10x.h"
 
+#define _Gpio_12_set  GPIO_WriteBit(GPIOA, GPIO_Pin_12, (BitAction)!GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin_12))
+#define _Gpio_7_set  GPIO_WriteBit(GPIOA, GPIO_Pin_7, (BitAction)!GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin_7))
+
+	 
+	 
 #define DAC_OUT_Enable	 	 
 	 
 /* Private define ------------------------------------------------------------*/
@@ -63,9 +68,9 @@
 	#define DACOUT2_Pin						GPIO_Pin_5
 	#define DACOUT2_GPIO_Port			GPIOA
 	#endif 
-#define ADCIN_1_Pin						GPIO_Pin_0
+#define ADCIN_1_Pin						GPIO_Pin_1
 #define ADCIN_1_GPIO_Port			GPIOA
-#define ADCIN_2_Pin						GPIO_Pin_1
+#define ADCIN_2_Pin						GPIO_Pin_2
 #define ADCIN_2_GPIO_Port			GPIOA
 
 
@@ -83,8 +88,10 @@ typedef enum
 		ULOC = 51U,
 		LOC
 }Button_STATUS;	 
-	 
-extern int16_t adc_dma_tab[4]; 
+
+extern int32_t 	SA_Final;
+extern int32_t 	SB_Final;
+extern int16_t adc_dma_tab[8]; 
 extern int16_t Threshold;
 extern uint8_t 	RegisterA;
 extern uint32_t ADCValue;

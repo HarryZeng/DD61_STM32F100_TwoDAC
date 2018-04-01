@@ -45,7 +45,7 @@ void ADC2_Init(void);
 void DAC_Configuration(void);	
 #endif
 
-extern int16_t adc_dma_tab[4]; 
+extern int16_t adc_dma_tab[8]; 
 
 	 
 #ifdef __cplusplus

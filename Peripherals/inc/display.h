@@ -471,6 +471,8 @@ void SMG_DisplayModeONE(int16_t Threshold,int16_t ADCvalue);
 void SMG_DisplayModeTWO(int16_t RegisterB);
 /*显示模式3*/
 void SMG_DisplayModeTHIRD(int16_t CPV_counter);
+/*功能菜单-CSV*/
+void SMG_DisplaCSV(uint32_t CSV_counter);
 /*功能菜单-SV*/
 void SMG_DisplaSV(uint32_t SV_counter);
 /*功能菜单-FSV*/

@@ -426,6 +426,36 @@ void SMG_DisplaSV(uint32_t SV_counter)
 		SMG_data_Decode_table[0][7]=data_SMG_seg_table[22];												//D8	none
 }
 
+/*功能菜单-CSV*/
+void SMG_DisplaCSV(uint32_t CSV_counter)
+{ 
+		uint8_t k_CSV_counter;
+		
+		k_CSV_counter = GetIntNumber(CSV_counter);
+	
+		SMG_data_Decode_table[0][0]=data_SMG_seg_table[CSV_counter%10];						//D1
+	if(k_CSV_counter>=2)
+		SMG_data_Decode_table[0][1]=data_SMG_seg_table[(CSV_counter/10)%10];			//D2
+	else
+			SMG_data_Decode_table[0][1]=data_SMG_seg_table[22];										//none
+	if(k_CSV_counter>=3)
+		SMG_data_Decode_table[0][2]=data_SMG_seg_table[(CSV_counter/100)%10];			//D3
+	else
+			SMG_data_Decode_table[0][2]=data_SMG_seg_table[22];										//none
+	if(k_CSV_counter>=4)
+		SMG_data_Decode_table[0][3]=data_SMG_seg_table[(CSV_counter/1000)%10];		//D4
+	else
+			SMG_data_Decode_table[0][3]=data_SMG_seg_table[22];										//none
+	if(k_CSV_counter>=5)
+		SMG_data_Decode_table[0][4]=data_SMG_seg_table[(CSV_counter/10000)%10];		//D5
+	else
+			SMG_data_Decode_table[0][4]=data_SMG_seg_table[22];										//none
+
+		SMG_data_Decode_table[0][5]=data_SMG_seg_table[19];												//D6	v
+		SMG_data_Decode_table[0][6]=data_SMG_seg_table[20];												//D7	s
+		SMG_data_Decode_table[0][7]=data_SMG_seg_table[12];												//D8	C
+}
+
 /*功能菜单-FSV*/
 void SMG_DisplayFSV(uint32_t FSV_counter)
 { 

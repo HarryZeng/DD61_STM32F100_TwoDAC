@@ -45,12 +45,12 @@ void EraseFlash(void)
 {	
 	InitInternalFlash(OUT1_Mode_FLASH_DATA_ADDRESS);
 	InitInternalFlash(OUT1_Value_FLASH_DATA_ADDRESS);
-	InitInternalFlash(SV_FLASH_DATA_ADDRESS);
+	InitInternalFlash(CSV_FLASH_DATA_ADDRESS);
 	InitInternalFlash(Threshold_FLASH_DATA_ADDRESS);
 	InitInternalFlash(DACOUT1_FLASH_DATA_ADDRESS);
 	InitInternalFlash(KEY_FLASH_DATA_ADDRESS);
 	InitInternalFlash(RegisterB_FLASH_DATA_ADDRESS);
-	InitInternalFlash(FSV_FLASH_DATA_ADDRESS);
+	InitInternalFlash(DACOUT2_FLASH_DATA_ADDRESS);
 	InitInternalFlash(HI_FLASH_DATA_ADDRESS);
 	InitInternalFlash(LO_FLASH_DATA_ADDRESS);
 	InitInternalFlash(DETECT_FLASH_DATA_ADDRESS);

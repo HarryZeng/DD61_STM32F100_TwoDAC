@@ -17,8 +17,6 @@
 
 uint8_t CheckFLag=0;
 
-#define _Gpio_12_set  GPIO_WriteBit(GPIOA, GPIO_Pin_12, (BitAction)!GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin_12))
-#define _Gpio_7_set  GPIO_WriteBit(GPIOA, GPIO_Pin_7, (BitAction)!GPIO_ReadOutputDataBit(GPIOA, GPIO_Pin_7))
 
 uint8_t TIM1step=0;
 
@@ -84,13 +82,13 @@ void TIM2_IRQHandler()
 	  if(TIM_GetITStatus(TIM2, TIM_IT_Update))            //判断发生update事件中断  
     { 
 				timenum++;
-				
+				//	_Gpio_7_set;
 				OUT1_Mode.DelayCounter++;
 			
 				//GPIOB->ODR ^= GPIO_Pin_8;
 				if(timenum%10==0) /*10us*100us=1000us*/
 				{
-					//GPIOB->ODR ^= GPIO_Pin_8;
+					//_Gpio_7_set;
 					if(OUT2)
 						OUT2_TimerCounter++;
 					if(OUT3)
@@ -105,6 +103,7 @@ void TIM2_IRQHandler()
 				}
 				if(timenum%80==0)/*80us*100us=8000us*/
 				{
+					
 					Key_Scan();									//定时扫描按键
 					tempPress=1;
 				}
@@ -134,6 +133,7 @@ void TIM3_IRQHandler(void)
 {
 	  if(TIM_GetITStatus(TIM3, TIM_IT_Update))            //判断发生update事件中断  
     { 
+//			_Gpio_7_set;
 			TIM_ClearITPendingBit(TIM3, TIM_IT_Update);     //清除update事件中断标志
 		}
 }

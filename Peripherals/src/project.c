@@ -22,8 +22,9 @@
 #include "flash.h"
 #include "stm32f10x_dma.h"
 #include "stm32f10x_tim.h"
-/*DSP库宏定义：ARM_MATH_CM0*/
+#include "stm32f10x_dac.h"
 
+/*DSP库宏定义：ARM_MATH_CM0*/
 
 
 uint32_t DealyBaseTime=8;
@@ -93,10 +94,10 @@ uint8_t DustFlag=0;
 
 int32_t 	SA[4];   /*PG120->S[4]*/
 int32_t 	SB[4];   /*PG120->S[4]*/
-int32_t 	SA_Sum;
-int32_t 	SB_Sum;
-int32_t 	SA_Final;
-int32_t 	SB_Final;
+int32_t 	SA_Sum=0;
+int32_t 	SB_Sum=0;
+int32_t 	SA_Final=0;
+int32_t 	SB_Final=0;
 uint8_t 	S_Index=0;
 uint8_t 	S_Flag=0;
 int32_t		S_Total_Final=0;
@@ -302,45 +303,47 @@ void DMA1_Channel1_IRQHandler(void)
 //				;
     if(DMA_GetITStatus(DMA_IT_TC))                      //判断DMA传输完成中断  
     {   
-				//GPIOA->ODR ^= GPIO_Pin_9;
-				SA[S_Index] = 4095-adc_dma_tab[0];
-				SA_Sum += SA[S_Index];  /*4次求和*/
-				SB[S_Index] = 4095-adc_dma_tab[1];
-				SB_Sum += SB[S_Index];	/*4次求和*/
-				S_Index++;
+				SA_Sum = adc_dma_tab[0]+adc_dma_tab[2]+adc_dma_tab[4]+adc_dma_tab[6];
+				SB_Sum = adc_dma_tab[1]+adc_dma_tab[3]+adc_dma_tab[5]+adc_dma_tab[7];
+			
+				SA_Final = SA_Sum / 4;
+				SB_Final = SB_Sum / 4;
+				SA_Sum = 0;
+				SB_Sum = 0;
+				S_Total_Final = SA_Final - SB_Final;
+//				SA_Final = 0;
+//				SB_Final = 0;
+				sample_finish = 1;
+				if(S_Total_Final<=0) S_Total_Final=0;
+				if(S_Total_Final>=4095) S_Total_Final=4095;
+				/*以上获得S最终信号值*/
+				/*下面进行阈值比较*/
+			if((SA_Final>=(S_Total_Final*7/8)&&(SA_Final<=S_Total_Final*9/8)) && (SB_Final>=(S_Total_Final*7/8)&&(SB_Final<=S_Total_Final*9/8)))
+			{
+				if(S_Total_Final>=Threshold)
+					RegisterA = 1;
+				//else if(S_Total_Final<=Threshold-DEL)
+				else if(S_Total_Final<=Threshold-30) //2018-4-1
+					RegisterA = 0;
+			}
+			else
+				RegisterA = 0;
+			
+				/*设置OUT1的状态*/
+				SetOUT1Status();
 				
-				if(S_Index>3)
+				if(LastRegisterA==0&&RegisterA==1)
 				{
-					S_Index = 0;
-					SA_Final = SA_Sum / 4;
-					SB_Final = SB_Sum / 4;
-				
-					S_Total_Final = SA_Final - SB_Final;
-					sample_finish = 1;
-					if(S_Total_Final<=0) S_Total_Final=0;
-					if(S_Total_Final>=4095) S_Total_Final=4095;
-					
-					if(S_Total_Final>=Threshold)
-						RegisterA = 1;
-					else if(S_Total_Final<=Threshold-DEL)
-						RegisterA = 0;
-					
-					/*设置OUT1的状态*/
-					SetOUT1Status();
-					
-					if(LastRegisterA==0&&RegisterA==1)
+					CPV++;
+					if(CPV>=CSV) /*如果计数器达到预先设定的CSV，清零，OUT2输出一个高电平*/
 					{
-						CPV++;
-						if(CPV>=CSV) /*如果计数器达到预先设定的CSV，清零，OUT2输出一个高电平*/
-						{
-							OUT2 = 1;
-							CPV = 0;
-						}
+						OUT2 = 1;
+						CPV = 0;
 					}
-					/*显示OUT1和OUT2的状态*/
-					SMG_DisplayOUT_STATUS(OUT1,OUT2,0);
-					LastRegisterA = RegisterA;
 				}
+				/*显示OUT1和OUT2的状态*/
+				SMG_DisplayOUT_STATUS(OUT1,OUT2,0);
+				LastRegisterA = RegisterA;
     }  
     DMA_ClearITPendingBit(DMA_IT_TC);                   //清楚DMA中断标志位  
 }  
@@ -543,6 +546,12 @@ void Get_SB_Value(uint32_t *SBvalue)
 }
 
 
+uint16_t Dac1_Get_Vol(void)  
+{  
+    return DAC_GetDataOutputValue(DAC_Channel_2);  
+} 
+
+uint16_t RealDACOUT = 0;
 
 void Main_Function(void)
 {
@@ -557,7 +566,8 @@ void Main_Function(void)
 		}
 		else
 		{
-				
+
+				//RealDACOUT = Dac1_Get_Vol();
 				/*正常显示模式*/
 				DisplayMODE();
 			
@@ -566,9 +576,7 @@ void Main_Function(void)
 				
 				/*OUT2输出*/
 				SetOUT2Status();
-				/*OUT3输出*/
-				//SetOUT3Status();
-				
+
 				if(KEY==ULOC)/*判断按键是否上锁*/
 				{
 				/*SET自学习模式*/
@@ -1500,18 +1508,27 @@ void GetEEPROM(void)
 
 			OUT1_Mode.DelayMode 	= ReadFlash(OUT1_Mode_FLASH_DATA_ADDRESS);
 			OUT1_Mode.DelayValue 	= ReadFlash(OUT1_Value_FLASH_DATA_ADDRESS);
-			SV 										= ReadFlash(SV_FLASH_DATA_ADDRESS);
+			CSV 										= ReadFlash(CSV_FLASH_DATA_ADDRESS);
 			Threshold 						= ReadFlash(Threshold_FLASH_DATA_ADDRESS);
 			DACOUT1 							= ReadFlash(DACOUT1_FLASH_DATA_ADDRESS);
 			KEY 									= ReadFlash(KEY_FLASH_DATA_ADDRESS);
 			RegisterB 						= ReadFlash(RegisterB_FLASH_DATA_ADDRESS);
-			FSV 									= ReadFlash(FSV_FLASH_DATA_ADDRESS);
+			DACOUT2 							= ReadFlash(DACOUT2_FLASH_DATA_ADDRESS);
 			HI 										= ReadFlash(HI_FLASH_DATA_ADDRESS);
 			LO 										= ReadFlash(LO_FLASH_DATA_ADDRESS);
 			displayModeONE_FLAG 	= ReadFlash(DETECT_FLASH_DATA_ADDRESS);
 			PERCENTAGE 						= ReadFlash(PERCENTAGE_FLASH_DATA_ADDRESS);
 			S_SET 								= ReadFlash(S_SET_FLASH_DATA_ADDRESS);
 			DSC 									= ReadFlash(DSC_FLASH_DATA_ADDRESS);
+//			
+//			DACOUT1 = 1400;
+//			DACOUT2 = 12;
+//			
+			
+			DAC_SetChannel1Data(DAC_Align_12b_R,(uint16_t)DACOUT1);
+			DAC_SoftwareTriggerCmd(DAC_Channel_1,ENABLE);
+			DAC_SetChannel2Data(DAC_Align_12b_R,(uint16_t)DACOUT2);
+			DAC_SoftwareTriggerCmd(DAC_Channel_2,ENABLE);			
 }
 
 /*****************************
@@ -1539,7 +1556,7 @@ void ResetParameter(void)
 		Test_Delay(50); 
 		WriteFlash(OUT1_Value_FLASH_DATA_ADDRESS,OUT1_Mode.DelayValue);
 		Test_Delay(50); 
-		WriteFlash(SV_FLASH_DATA_ADDRESS,SV);
+		WriteFlash(CSV_FLASH_DATA_ADDRESS,CSV);
 		Test_Delay(50); 
 		WriteFlash(Threshold_FLASH_DATA_ADDRESS,Threshold);
 		Test_Delay(50); 
@@ -1549,7 +1566,7 @@ void ResetParameter(void)
 		Test_Delay(50); 
 		WriteFlash(RegisterB_FLASH_DATA_ADDRESS,RegisterB);
 		Test_Delay(50); 
-		WriteFlash(FSV_FLASH_DATA_ADDRESS,FSV);
+		WriteFlash(DACOUT2_FLASH_DATA_ADDRESS,DACOUT2);
 		Test_Delay(50); 
 		WriteFlash(HI_FLASH_DATA_ADDRESS,HI);
 		Test_Delay(50); 

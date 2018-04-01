@@ -7,8 +7,8 @@
 #include "stm32f10x_dac.h"
 
 
-#define DMA_BUFFER_SIZE     4
-int16_t adc_dma_tab[4] = { 0,0,0,0 };  
+#define DMA_BUFFER_SIZE     2*4
+int16_t adc_dma_tab[8] = { 0,0,0,0,0,0,0,0};  
 
 void RCC_Configuration(void)
 {
@@ -145,10 +145,10 @@ void IO_GPIO_INIT(void)
     gpio_init_structure.GPIO_Speed = GPIO_Speed_50MHz;                               
 		GPIO_Init(OUT2_GPIO_Port, &gpio_init_structure);
 
-//		gpio_init_structure.GPIO_Pin = OUT3_Pin;  
-//    gpio_init_structure.GPIO_Mode = GPIO_Mode_Out_PP;             
-//    gpio_init_structure.GPIO_Speed = GPIO_Speed_50MHz;                               
-//		GPIO_Init(OUT3_GPIO_Port, &gpio_init_structure);
+		gpio_init_structure.GPIO_Pin = GPIO_Pin_7;  
+    gpio_init_structure.GPIO_Mode = GPIO_Mode_Out_PP;             
+    gpio_init_structure.GPIO_Speed = GPIO_Speed_50MHz;                               
+		GPIO_Init(GPIOA, &gpio_init_structure);
 
 //		//SC_GPIO_Port
 //    gpio_init_structure.GPIO_Pin = SC_Pin;  
@@ -216,11 +216,11 @@ void TIM3_init(void)
 	
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE); 
 	
-//	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;                //使能TIM3中断通道  
-//	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority= 2;  
-//	NVIC_InitStructure.NVIC_IRQChannelSubPriority= 2;          
-//	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;     
-//	NVIC_Init(&NVIC_InitStructure);
+	NVIC_InitStructure.NVIC_IRQChannel = TIM3_IRQn;                //使能TIM3中断通道  
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority= 1;  
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority= 1;          
+	NVIC_InitStructure.NVIC_IRQChannelCmd=ENABLE;     
+	NVIC_Init(&NVIC_InitStructure);
 //	
 	/*TIM3*/
 	TIM_DeInit(TIM3);                                               //复位TIM3
@@ -228,7 +228,7 @@ void TIM3_init(void)
 
 	timer_init_structure.TIM_ClockDivision = TIM_CKD_DIV1;          //系统时钟,不分频,24M  
 	timer_init_structure.TIM_CounterMode = TIM_CounterMode_Up;      //向上计数模式  
-	timer_init_structure.TIM_Period = 50;                          //每300 uS触发一次中断,??ADC  
+	timer_init_structure.TIM_Period = 40;                          //每300 uS触发一次中断,??ADC  
 	timer_init_structure.TIM_Prescaler = 23;                      //计数时钟分频,f=1M,systick=1 uS  
 	timer_init_structure.TIM_RepetitionCounter = 0x00;              //发生0+1的update事件产生中断 
 	
@@ -295,8 +295,8 @@ void TIM2_init(void)
 
 		/*MVIC*/
 		NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
-		nvic_init_structure.NVIC_IRQChannelPreemptionPriority = 2;
-		nvic_init_structure.NVIC_IRQChannelPreemptionPriority= 2;
+		nvic_init_structure.NVIC_IRQChannelPreemptionPriority = 3;
+		nvic_init_structure.NVIC_IRQChannelPreemptionPriority= 3;
 		nvic_init_structure.NVIC_IRQChannel = TIM2_IRQn;                //使能TIM2中断通道  
     nvic_init_structure.NVIC_IRQChannelCmd = ENABLE;                //使能TIM2中断  
     NVIC_Init(&nvic_init_structure); 
@@ -305,7 +305,7 @@ void TIM2_init(void)
     TIM_DeInit(TIM2);                                               //复位TIM2  
 		TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;          //系统时钟,不分频,24M  
 		TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up;      //向上计数模式  
-		TIM_TimeBaseStructure.TIM_Period = 120;                          //每300 uS触发一次中断,??ADC  
+		TIM_TimeBaseStructure.TIM_Period = 100;                          //每100 uS触发一次中断,??ADC  
 		TIM_TimeBaseStructure.TIM_Prescaler = 23;                      //计数时钟分频,f=1M,systick=1 uS  
 		TIM_TimeBaseStructure.TIM_RepetitionCounter = 0x00;              //发生0+1的update事件产生中断 
 		
@@ -403,11 +403,11 @@ void ADC1_GPIO_Config()
 	GPIO_InitTypeDef GPIO_InitStructure;
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA , ENABLE );	  //使能ADC1通道时钟
 		//PA1 作为模拟通道输入引脚                         
-	GPIO_InitStructure.GPIO_Pin = ADCIN_1_Pin;//CH->5
+	GPIO_InitStructure.GPIO_Pin = ADCIN_1_Pin;//CH->0
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;		//模拟输入引脚
 	GPIO_Init(ADCIN_1_GPIO_Port, &GPIO_InitStructure);	
 	
-	GPIO_InitStructure.GPIO_Pin = ADCIN_2_Pin;//CH->4
+	GPIO_InitStructure.GPIO_Pin = ADCIN_2_Pin;//CH->1
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;		//模拟输入引脚
 	GPIO_Init(ADCIN_2_GPIO_Port, &GPIO_InitStructure);	
 	
@@ -477,8 +477,8 @@ void ADC1_Init(void)
   ADC_Init(ADC1, &ADC_InitStructure);
 
   /* ADC1 regular configuration */ 
-  ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 1, ADC_SampleTime_7Cycles5);
-  ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 2, ADC_SampleTime_7Cycles5);
+  ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 1, ADC_SampleTime_55Cycles5);
+  ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 2, ADC_SampleTime_55Cycles5);
 //  ADC_RegularChannelConfig(ADC1, ADC_Channel_7, 3, ADC_SampleTime_7Cycles5);
 //	ADC_RegularChannelConfig(ADC1, ADC_Channel_6, 4, ADC_SampleTime_7Cycles5);
 
@@ -511,8 +511,7 @@ void DAC_GPIO_Init(void)
 		GPIO_InitTypeDef GPIO_InitStructure;  
     //??GPIO??  
     RCC_AHBPeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE); 
-		RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);
-	
+			
 		GPIO_InitStructure.GPIO_Pin = DACOUT1_Pin;
 		GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;		//模拟输入引脚                
 		GPIO_Init(DACOUT1_GPIO_Port, &GPIO_InitStructure);
@@ -525,7 +524,7 @@ void DAC_GPIO_Init(void)
 void DAC_OUT_Init(void)
 {
 		DAC_InitTypeDef DAC_InitStructure;
-		
+		RCC_APB1PeriphClockCmd(RCC_APB1Periph_DAC, ENABLE);
 		DAC_GPIO_Init();
 
 		DAC_InitStructure.DAC_Trigger = DAC_Trigger_Software;  //软件触发DA转换
@@ -533,13 +532,11 @@ void DAC_OUT_Init(void)
 		DAC_InitStructure.DAC_LFSRUnmask_TriangleAmplitude = DAC_LFSRUnmask_Bit0;
 		DAC_InitStructure.DAC_OutputBuffer = DAC_OutputBuffer_Enable ;  //使能输出缓存
 		DAC_Init(DAC_Channel_1,&DAC_InitStructure);    //初始化 DAC 通道 1
-	
-		DAC_InitStructure.DAC_Trigger = DAC_Trigger_Software;  //软件触发DA转换
-		DAC_InitStructure.DAC_WaveGeneration = DAC_WaveGeneration_None;//不产生波形
-		DAC_InitStructure.DAC_LFSRUnmask_TriangleAmplitude = DAC_LFSRUnmask_Bit0;
-		DAC_InitStructure.DAC_OutputBuffer = DAC_OutputBuffer_Enable ;  //使能输出缓存
 		DAC_Init(DAC_Channel_2,&DAC_InitStructure);    //初始化 DAC 通道 1
-
+	
+		
+		DAC_Cmd(DAC_Channel_1,ENABLE); 
+		DAC_Cmd(DAC_Channel_2,ENABLE);
 }
 
 void DAC_Configuration(void)

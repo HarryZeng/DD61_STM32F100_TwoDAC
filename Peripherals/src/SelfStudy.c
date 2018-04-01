@@ -36,14 +36,14 @@ uint32_t CalibrateADCValue=0;
 uint32_t CalibrateSAValue=0;
 uint32_t CalibrateSBValue=0;
 
-extern int16_t adc_dma_tab[4];
+extern int16_t adc_dma_tab[8];
 extern  uint8_t DX_Flag;
 extern uint8_t sample_finish;  
 void ADCINcalibration(void);
 
 void selfstudy(void)
 {
-	uint8_t OUT1_STATUS,OUT2_STATUS,OUT3_STATUS;
+	uint8_t OUT1_STATUS,OUT2_STATUS;
 	
 
 	if(SetButton.Status == Press && ModeButton.Status==Press)
@@ -61,16 +61,14 @@ void selfstudy(void)
 				GPIO_WriteBit(OUT1_GPIO_Port,OUT1_Pin,(BitAction)OUT1_STATUS);/*保持着OUT1状态*/
 					OUT2_STATUS = GPIO_ReadInputDataBit(OUT2_GPIO_Port,OUT2_Pin);/*获取当前的OUT2状态*/
 				GPIO_WriteBit(OUT2_GPIO_Port,OUT2_Pin,(BitAction)OUT2_STATUS);/*保持着OUT1状态*/
-//					OUT3_STATUS = GPIO_ReadInputDataBit(OUT3_GPIO_Port,OUT3_Pin);/*获取当前的OUT3状态*/
-//				GPIO_WriteBit(OUT3_GPIO_Port,OUT3_Pin,(BitAction)OUT3_STATUS);/*保持着OUT1状态*/
-				
+
 				/*按着按键3秒内*/
 				SMG_DisplaySET_Step_1_Mode(0,0);  //显示SET1
 				
 				/*DAC输出，ADC调零*/
 				ADCINcalibration();
 				
-				while(SetButton.Effect == PressShort) /*按下按键已经超过时间，而且没有释放，闪烁提醒*/
+				while(SetButton.Effect == PressShort || SetButton.Effect == PressLong) /*按下按键已经超过时间，而且没有释放，闪烁提醒*/
 				{		
 					/*3秒到了,闪烁提醒*/
 					//if(EventFlag&Blink500msFlag) 
@@ -82,18 +80,17 @@ void selfstudy(void)
 							//GetADCValue(&SET1ADC_Value);		//定时ADC采样
 							//SMG_DisplaySET_Step_1_Mode(2,CalibrateADCValue);
 					//	}
-					if(SetButton.Status == Release) 
+					if(SetButton.Status == Press && SetButton.Effect == PressShort) 
 					{
+						SMG_DisplaySET_Step_2_Mode(0,S_Total_Final,0);
+						GetMAXADCValue();/*按下的三秒钟内，不断查找最大值*/
 	//					DX_Flag = 1;
 							//break;
 					}
 					else if(SetButton.Effect == PressLong && SetButton.Status==Press ) /*按键达到3秒后，第一次进入自学习，等待第二次按下SET 3秒*/
 					{	
 						DX_Flag = 0;
-						//ATTcalibration();
-						
-						/*3秒到了，并释放了按键*/
-						
+
 						/*一直等待第二次SET的按下*
 						**************************/
 						SetButton.LastCounter = SetButton.PressCounter;
@@ -105,9 +102,7 @@ void selfstudy(void)
 						ModeButton.PressCounter=0;
 						ModeButton.Effect=PressNOEffect;
 						
-						GetMAXADCValue();
-						
-						//selfDisplayEndFlay =0;
+						selfDisplayEndFlay =0;
 						//GetMAXADCValue();
 //						while(SetButton.Status==Press)
 //						{
@@ -124,29 +119,28 @@ void selfstudy(void)
 
 
 /*在一系列的ADCvalue中寻找最大的ADV MAX*/
-uint32_t 			ADCMAX=0;
-uint32_t 		NewThreshold=0;
-uint32_t 		TempMaxADCValue=0;
+int32_t 			ADCMAX=0;
+int32_t 		NewThreshold=0;
+int32_t 		S_MaxValue=0;
+int32_t    	SA_MaxValue=0;
+int32_t    	SB_MaxValue=0;
 void GetMAXADCValue(void)
 {
 		uint32_t 		TempADCValue=0;
 //		static uint8_t lastCounter;
-	  TempMaxADCValue =0;
+	  S_MaxValue =0;
 		while(selfDisplayEndFlay==0)     //第二次按下SET按键
 		{
-		
-			SMG_DisplaySET_Step_1_Mode(0,S_Total_Final);
 			while(SetButton.Status == Press )
 			{
-				//if(EventFlag&ADVtimeFlag) //按下的3秒内，一直定时采集ADC值
-				//{
-				//	EventFlag = EventFlag &(~ADVtimeFlag);  //清楚标志位
-					//GetTotalADCValue(&TempADCValue);					//定时ADC采样
-				
 					TempADCValue = 	S_Total_Final ;
 				
-					if(TempADCValue>=TempMaxADCValue)
-							TempMaxADCValue = TempADCValue;
+					if(TempADCValue>=S_MaxValue)
+					{
+						S_MaxValue = TempADCValue;
+						SA_MaxValue = SA_Final;
+						SB_MaxValue = SB_Final;
+					}
 				//}
 				/*这里要显示SET2*/
 				if(EventFlag&Blink500msFlag) 
@@ -164,10 +158,13 @@ void GetMAXADCValue(void)
 					}				
 					while(SetButton.Effect == PressLong && SetButton.Status == Release) /*按键达到3秒后，结束第二次SET按键*/
 					{		/*3秒到了，并释放了按键*/
-					//	arm_max_f32(TempADCValue_f[1],i,&ADCMAX,&MAX_Index);  /*获得最大的ADCIN值*/
 						
-						ADCMAX = TempMaxADCValue;
-						NewThreshold = (CalibrateADCValue+ADCMAX)/2;				/*获得本次自学习的OUT1阈值*/
+						ADCMAX = S_MaxValue;
+						//NewThreshold = (CalibrateADCValue+ADCMAX)/2;				/*获得本次自学习的OUT1阈值*/
+						NewThreshold = (S_MaxValue*3)/4;  //SMAX的3/4作为阈值
+						if(NewThreshold<=20) NewThreshold=20;
+						if(NewThreshold>=4095) NewThreshold=4095;
+						
 						
 						GPIO_WriteBit(OUT1_GPIO_Port,OUT1_Pin,(BitAction)GPIO_ReadInputDataBit(OUT1_GPIO_Port,OUT1_Pin));
 						GPIO_WriteBit(OUT2_GPIO_Port,OUT2_Pin,(BitAction)GPIO_ReadInputDataBit(OUT2_GPIO_Port,OUT2_Pin));
@@ -180,7 +177,8 @@ void GetMAXADCValue(void)
 
 						WriteFlash(Threshold_FLASH_DATA_ADDRESS,NewThreshold);
 						WriteFlash(DACOUT1_FLASH_DATA_ADDRESS,DACOUT1);
-
+						WriteFlash(DACOUT2_FLASH_DATA_ADDRESS,DACOUT2);
+						
 							}
 					}
 				}
@@ -259,6 +257,12 @@ void ADCINcalibration(void)
 				DACOUT2 = 0;
 			DAC_SetChannel1Data(DAC_Align_12b_R,(uint16_t)DACOUT2);
 			DAC_SoftwareTriggerCmd(DAC_Channel_2,ENABLE);
+			
+			/*限位*/
+			if((DACOUT1>=4095||DACOUT1<=0)&&(CalibrateSAValue>1400||CalibrateSAValue<=1000))
+				break;
+			if((DACOUT2>=4095||DACOUT2<=0)&&(CalibrateSBValue>1400||CalibrateSBValue<=1000))
+				break;
 		}
 	}
 }

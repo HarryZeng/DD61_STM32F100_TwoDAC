@@ -15,12 +15,12 @@
 #define 	ProgramRUNcounter_Mode_FLASH_DATA_ADDRESS 	 		FLASH_Base_ADDRESS+0x000
 #define 	OUT1_Mode_FLASH_DATA_ADDRESS 	 									FLASH_Base_ADDRESS+0x400
 #define 	OUT1_Value_FLASH_DATA_ADDRESS 	 								FLASH_Base_ADDRESS+0x800
-#define 	SV_FLASH_DATA_ADDRESS 	 												FLASH_Base_ADDRESS+0xC00
+#define 	CSV_FLASH_DATA_ADDRESS 	 												FLASH_Base_ADDRESS+0xC00
 #define 	Threshold_FLASH_DATA_ADDRESS 	 									FLASH_Base_ADDRESS+0x1000
 #define 	DACOUT1_FLASH_DATA_ADDRESS 	 										FLASH_Base_ADDRESS+0x1400
 #define 	KEY_FLASH_DATA_ADDRESS 	 												FLASH_Base_ADDRESS+0x1800
 #define 	RegisterB_FLASH_DATA_ADDRESS 	 									FLASH_Base_ADDRESS+0x1c00
-#define 	FSV_FLASH_DATA_ADDRESS 	 												FLASH_Base_ADDRESS+0x2000
+#define 	DACOUT2_FLASH_DATA_ADDRESS 	 										FLASH_Base_ADDRESS+0x2000
 #define 	HI_FLASH_DATA_ADDRESS 	 												FLASH_Base_ADDRESS+0x2400
 #define 	LO_FLASH_DATA_ADDRESS 	 												FLASH_Base_ADDRESS+0x2800
 #define 	DETECT_FLASH_DATA_ADDRESS 	 										FLASH_Base_ADDRESS+0x2C00	 

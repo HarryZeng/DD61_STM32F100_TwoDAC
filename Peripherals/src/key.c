@@ -20,7 +20,6 @@
 #define shortKEY 	100
 #define middleKEY	1000
 #define longKEY		3000
-#define SCAN_TIMER  htim3
 
 //uint32_t key_counter;
 ButtonStruct SetButton;
@@ -33,8 +32,8 @@ void PressCallback(ButtonStruct* Button);
 
 void Button_Init(void)
 {
-	 GPIO_InitTypeDef gpio_init_structure;  
-		SetButton.ButtonPort = BUTTON_SET_GPIO_Port;
+	GPIO_InitTypeDef gpio_init_structure;  
+	SetButton.ButtonPort = BUTTON_SET_GPIO_Port;
 	SetButton.ButtonPin = BUTTON_SET_Pin;
 	SetButton.Mode = ShortAndLong;
 	SetButton.PressCounter = 0;
@@ -43,7 +42,7 @@ void Button_Init(void)
 	SetButton.WorkIn = WorkHigh;
 	SetButton.Effect = PressNOEffect;
 	SetButton.ShortTime = 1*timer_period;
-	SetButton.LongTime = 10*timer_period;   
+	SetButton.LongTime = 20*timer_period;   
  
 	ModeButton.ButtonPort = BUTTON_MODE_GPIO_Port;
 	ModeButton.ButtonPin = BUTTON_MODE_Pin;
@@ -54,7 +53,7 @@ void Button_Init(void)
 	ModeButton.WorkIn = WorkHigh;
 	ModeButton.Effect = PressNOEffect;
 	ModeButton.ShortTime = 1*timer_period;  
-	ModeButton.LongTime = 10*timer_period;		
+	ModeButton.LongTime = 20*timer_period;		
 	
 	UpButton.ButtonPort = BUTTON_UP_GPIO_Port;
 	UpButton.ButtonPin = BUTTON_UP_Pin;
@@ -65,7 +64,7 @@ void Button_Init(void)
 	UpButton.WorkIn = WorkHigh;
 	UpButton.Effect = PressNOEffect;
 	UpButton.ShortTime = 1*timer_period;
-	UpButton.LongTime = 10*timer_period;
+	UpButton.LongTime = 20*timer_period;
 	
 	DownButton.ButtonPort = BUTTON_DOWN_GPIO_Port;
 	DownButton.ButtonPin = BUTTON_DOWN_Pin;
@@ -76,7 +75,7 @@ void Button_Init(void)
 	DownButton.WorkIn = WorkHigh;
 	DownButton.Effect = PressNOEffect;
 	DownButton.ShortTime = 1*timer_period;
-	DownButton.LongTime = 10*timer_period;
+	DownButton.LongTime = 20*timer_period;
 	
   gpio_init_structure.GPIO_Mode = GPIO_Mode_IPD;                                 
   gpio_init_structure.GPIO_Speed = GPIO_Speed_2MHz;      

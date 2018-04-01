@@ -19,3 +19,4 @@
 ..\output\project.o: ..\Peripherals\inc\flash.h
 ..\output\project.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_dma.h
 ..\output\project.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_tim.h
+..\output\project.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_dac.h
