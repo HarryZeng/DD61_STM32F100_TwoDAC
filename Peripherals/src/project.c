@@ -15,6 +15,7 @@
 ///* 包含的头文件 --------------------------------------------------------------*/
 /* Includes ------------------------------------------------------------------*/
 #include "project.h"
+#include "bsp_init.h"
 #include "key.h"
 #include "display.h"
 #include "SelfStudy.h"
@@ -306,6 +307,8 @@ void DMA1_Channel1_IRQHandler(void)
 {  
 //		if(DMA_GetITStatus(DMA_IT_HT))
 //				;
+		float Max_Threshold=0;
+		float Min_Threshold=0;
     if(DMA_GetITStatus(DMA_IT_TC))                      //判断DMA传输完成中断  
     {   
 				SA_Sum = adc_dma_tab[0]+adc_dma_tab[4]+adc_dma_tab[8]+adc_dma_tab[12];
@@ -333,12 +336,16 @@ void DMA1_Channel1_IRQHandler(void)
 				if(S_Total_Final>=4095) S_Total_Final=4095;
 				/*以上获得S最终信号值*/
 				/*下面进行阈值比较*/
-			if((SA_Final>=(S_Total_Final*7/8)&&(SA_Final<=S_Total_Final*9/8)) && (SB_Final>=(S_Total_Final*7/8)&&(SB_Final<=S_Total_Final*9/8)))
+			if((SA_Final>=(SA_MaxValue*7/8)&&(SA_Final<=SA_MaxValue*9/8)) && (SB_Final>=(SB_MaxValue*7/8)&&(SB_Final<=SB_MaxValue*9/8)))
 			{
-				if(S_Total_Final>=Threshold)
+				Max_Threshold = Threshold ; 
+				Min_Threshold = Threshold-30 ;
+				if(Threshold-30<=0) Min_Threshold=0;
+				
+				if(S_Total_Final>=Max_Threshold)
 					RegisterA = 1;
 				//else if(S_Total_Final<=Threshold-DEL)
-				else if(S_Total_Final<=Threshold-30) //2018-4-1
+				else if(S_Total_Final<Min_Threshold) //2018-4-1
 					RegisterA = 0;
 			}
 			else
@@ -965,7 +972,7 @@ void DisplayModeONE_AREA(void)
 					}
 					if(LastHIValue!=HI && DownButton.Status==Release && UpButton.Status==Release)
 					{
-						WriteFlash(HI_FLASH_DATA_ADDRESS,HI);
+						//WriteFlash(HI_FLASH_DATA_ADDRESS,HI);
 					}
 				}
 			}
@@ -1069,7 +1076,7 @@ void DisplayModeONE_AREA(void)
 					}
 					if(LastLOValue!=LO && DownButton.Status==Release && UpButton.Status==Release)
 					{
-						WriteFlash(LO_FLASH_DATA_ADDRESS,LO);
+						//WriteFlash(LO_FLASH_DATA_ADDRESS,LO);
 					}
 				}
 			}
@@ -1535,8 +1542,8 @@ void GetEEPROM(void)
 			KEY 									= ReadFlash(KEY_FLASH_DATA_ADDRESS);
 			RegisterB 						= ReadFlash(RegisterB_FLASH_DATA_ADDRESS);
 			DACOUT2 							= ReadFlash(DACOUT2_FLASH_DATA_ADDRESS);
-			HI 										= ReadFlash(HI_FLASH_DATA_ADDRESS);
-			LO 										= ReadFlash(LO_FLASH_DATA_ADDRESS);
+			SA_MaxValue 										= ReadFlash(SA_MAX_FLASH_DATA_ADDRESS);
+			SB_MaxValue 										= ReadFlash(SB_MAX_FLASH_DATA_ADDRESS);
 			displayModeONE_FLAG 	= ReadFlash(DETECT_FLASH_DATA_ADDRESS);
 			PERCENTAGE 						= ReadFlash(PERCENTAGE_FLASH_DATA_ADDRESS);
 			S_SET 								= ReadFlash(S_SET_FLASH_DATA_ADDRESS);
@@ -1589,9 +1596,9 @@ void ResetParameter(void)
 		Test_Delay(50); 
 		WriteFlash(DACOUT2_FLASH_DATA_ADDRESS,DACOUT2);
 		Test_Delay(50); 
-		WriteFlash(HI_FLASH_DATA_ADDRESS,HI);
+		WriteFlash(SA_MAX_FLASH_DATA_ADDRESS,SA_MaxValue);
 		Test_Delay(50); 
-		WriteFlash(LO_FLASH_DATA_ADDRESS,LO);
+		WriteFlash(SB_MAX_FLASH_DATA_ADDRESS,SB_MaxValue);
 		Test_Delay(50); 
 		WriteFlash(DETECT_FLASH_DATA_ADDRESS,displayModeONE_FLAG);
 		Test_Delay(50);

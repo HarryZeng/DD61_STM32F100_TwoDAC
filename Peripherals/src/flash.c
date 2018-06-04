@@ -51,8 +51,8 @@ void EraseFlash(void)
 	InitInternalFlash(KEY_FLASH_DATA_ADDRESS);
 	InitInternalFlash(RegisterB_FLASH_DATA_ADDRESS);
 	InitInternalFlash(DACOUT2_FLASH_DATA_ADDRESS);
-	InitInternalFlash(HI_FLASH_DATA_ADDRESS);
-	InitInternalFlash(LO_FLASH_DATA_ADDRESS);
+	InitInternalFlash(SA_MAX_FLASH_DATA_ADDRESS);
+	InitInternalFlash(SB_MAX_FLASH_DATA_ADDRESS);
 	InitInternalFlash(DETECT_FLASH_DATA_ADDRESS);
 	InitInternalFlash(PERCENTAGE_FLASH_DATA_ADDRESS);
 	InitInternalFlash(S_SET_FLASH_DATA_ADDRESS);

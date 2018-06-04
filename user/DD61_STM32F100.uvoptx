@@ -157,62 +157,82 @@
         <Ww>
           <count>0</count>
           <WinNumber>2</WinNumber>
-          <ItemText>SA_Final,0x0A</ItemText>
+          <ItemText>adc_dma_tab,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>1</count>
           <WinNumber>2</WinNumber>
-          <ItemText>SB_Final,0x0A</ItemText>
+          <ItemText>DACOUT2,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>2</count>
           <WinNumber>2</WinNumber>
-          <ItemText>adc_dma_tab,0x0A</ItemText>
+          <ItemText>DACOUT1,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>3</count>
           <WinNumber>2</WinNumber>
-          <ItemText>S_Total_Final,0x0A</ItemText>
+          <ItemText>CalibrateSAValue,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>4</count>
           <WinNumber>2</WinNumber>
-          <ItemText>DACOUT2,0x0A</ItemText>
+          <ItemText>CalibrateSBValue,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>5</count>
           <WinNumber>2</WinNumber>
-          <ItemText>DACOUT1,0x0A</ItemText>
+          <ItemText>CalibrateS1Value,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>6</count>
           <WinNumber>2</WinNumber>
-          <ItemText>CalibrateSAValue,0x0A</ItemText>
+          <ItemText>CalibrateS2Value,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>7</count>
           <WinNumber>2</WinNumber>
-          <ItemText>CalibrateSBValue,0x0A</ItemText>
+          <ItemText>Threshold,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>8</count>
           <WinNumber>2</WinNumber>
-          <ItemText>CalibrateS1Value,0x0A</ItemText>
+          <ItemText>Threshold-30,0x0A</ItemText>
         </Ww>
         <Ww>
           <count>9</count>
           <WinNumber>2</WinNumber>
-          <ItemText>CalibrateS2Value,0x0A</ItemText>
+          <ItemText>S_Total_Final*7/8</ItemText>
         </Ww>
         <Ww>
           <count>10</count>
           <WinNumber>2</WinNumber>
-          <ItemText>Threshold,0x0A</ItemText>
+          <ItemText>SA_Final</ItemText>
         </Ww>
         <Ww>
           <count>11</count>
           <WinNumber>2</WinNumber>
-          <ItemText>Threshold-30,0x0A</ItemText>
+          <ItemText>SB_Final</ItemText>
+        </Ww>
+        <Ww>
+          <count>12</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>S_Total_Final*9/8</ItemText>
+        </Ww>
+        <Ww>
+          <count>13</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>S_Total_Final</ItemText>
+        </Ww>
+        <Ww>
+          <count>14</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>SA_MaxValue,0x0A</ItemText>
+        </Ww>
+        <Ww>
+          <count>15</count>
+          <WinNumber>2</WinNumber>
+          <ItemText>SB_MaxValue,0x0A</ItemText>
         </Ww>
       </WatchWindow2>
       <Tracepoint>

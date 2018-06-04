@@ -140,11 +140,11 @@ void GetMAXADCValue(void)
 			{
 					TempADCValue = 	S_Total_Final ;
 				
-					if(TempADCValue>=S_MaxValue)
+					if(TempADCValue>=S_MaxValue)   //不断寻找最大值
 					{
 						S_MaxValue = TempADCValue;
-						SA_MaxValue = SA_Final;
-						SB_MaxValue = SB_Final;
+						SA_MaxValue = SA_Final;    	//SA_Max
+						SB_MaxValue = SB_Final;			//SB_Max
 					}
 				//}
 				/*这里要显示SET2*/
@@ -164,8 +164,6 @@ void GetMAXADCValue(void)
 					while(SetButton.Effect == PressLong && SetButton.Status == Release) /*按键达到3秒后，结束第二次SET按键*/
 					{		/*3秒到了，并释放了按键*/
 						
-						ADCMAX = S_MaxValue;
-						//NewThreshold = (CalibrateADCValue+ADCMAX)/2;				/*获得本次自学习的OUT1阈值*/
 						NewThreshold = (S_MaxValue*3)/4;  //SMAX的3/4作为阈值
 						if(NewThreshold<=20) NewThreshold=20;
 						if(NewThreshold>=4095) NewThreshold=4095;
@@ -181,6 +179,8 @@ void GetMAXADCValue(void)
 						SetButton.Effect = PressNOEffect;
 
 						WriteFlash(Threshold_FLASH_DATA_ADDRESS,NewThreshold);
+						WriteFlash(SA_MAX_FLASH_DATA_ADDRESS,SA_MaxValue);
+						WriteFlash(SB_MAX_FLASH_DATA_ADDRESS,SB_MaxValue);
 						WriteFlash(DACOUT1_FLASH_DATA_ADDRESS,DACOUT1);
 						WriteFlash(DACOUT2_FLASH_DATA_ADDRESS,DACOUT2);
 						

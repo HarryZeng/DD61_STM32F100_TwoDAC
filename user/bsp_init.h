@@ -47,7 +47,8 @@ void DAC_Configuration(void);
 #endif
 
 extern int16_t adc_dma_tab[DMA_BUFFER_SIZE]; 
-
+extern int32_t SA_MaxValue;
+extern int32_t SB_MaxValue;
 	 
 #ifdef __cplusplus
 }
