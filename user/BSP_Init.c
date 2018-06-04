@@ -7,8 +7,7 @@
 #include "stm32f10x_dac.h"
 
 
-#define DMA_BUFFER_SIZE     2*4
-int16_t adc_dma_tab[8] = { 0,0,0,0,0,0,0,0};  
+int16_t adc_dma_tab[DMA_BUFFER_SIZE] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};  
 
 void RCC_Configuration(void)
 {
@@ -255,8 +254,6 @@ void TIM2_PWM_OUT_Init(void)
 		GPIO_InitStructure.GPIO_Mode=GPIO_Mode_AF_PP;
 		GPIO_Init(GPIOA,&GPIO_InitStructure);
 	
-
-		
 			/*OCInit Channel 1 Configuration in PWM mode */
 		TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;                                
 		TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;         
@@ -403,11 +400,11 @@ void ADC1_GPIO_Config()
 	GPIO_InitTypeDef GPIO_InitStructure;
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA , ENABLE );	  //使能ADC1通道时钟
 		//PA1 作为模拟通道输入引脚                         
-	GPIO_InitStructure.GPIO_Pin = ADCIN_1_Pin;//CH->0
+	GPIO_InitStructure.GPIO_Pin = ADCIN_1_Pin;//CH->1
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;		//模拟输入引脚
 	GPIO_Init(ADCIN_1_GPIO_Port, &GPIO_InitStructure);	
 	
-	GPIO_InitStructure.GPIO_Pin = ADCIN_2_Pin;//CH->1
+	GPIO_InitStructure.GPIO_Pin = ADCIN_2_Pin;//CH->2
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;		//模拟输入引脚
 	GPIO_Init(ADCIN_2_GPIO_Port, &GPIO_InitStructure);	
 	
@@ -473,19 +470,18 @@ void ADC1_Init(void)
   ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
   ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T3_TRGO;
   ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
-  ADC_InitStructure.ADC_NbrOfChannel = 2;
+  ADC_InitStructure.ADC_NbrOfChannel = 4;
   ADC_Init(ADC1, &ADC_InitStructure);
 
   /* ADC1 regular configuration */ 
-  ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 1, ADC_SampleTime_55Cycles5);
-  ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 2, ADC_SampleTime_55Cycles5);
-//  ADC_RegularChannelConfig(ADC1, ADC_Channel_7, 3, ADC_SampleTime_7Cycles5);
-//	ADC_RegularChannelConfig(ADC1, ADC_Channel_6, 4, ADC_SampleTime_7Cycles5);
+  ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 1, ADC_SampleTime_7Cycles5);
+  ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 2, ADC_SampleTime_7Cycles5);
+  ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 3, ADC_SampleTime_7Cycles5);
+	ADC_RegularChannelConfig(ADC1, ADC_Channel_3, 4, ADC_SampleTime_7Cycles5);
 
    ADC_DMACmd(ADC1 , ENABLE);
    ADC_ExternalTrigConvCmd(ADC1, ENABLE);
   
-
    ADC_Cmd(ADC1 , ENABLE);   
    ADC_ResetCalibration(ADC1);
    while(ADC_GetResetCalibrationStatus(ADC1)){};
@@ -500,6 +496,39 @@ void ADC1_Configuration(void)
     ADC1_Init();
 }
 
+
+//void S_ADCChannel_Init(void)
+//{
+//  ADC_InitTypeDef  ADC_InitStructure;
+//	
+//	RCC_APB2PeriphClockCmd(RCC_APB2Periph_ADC1	, ENABLE );	  //使能ADC1通道时钟
+// 
+//	RCC_ADCCLKConfig(RCC_PCLK2_Div2);   //设置ADC分频因子6 64M/8=8,ADC最大时间不能超过14M
+//  
+//  /* ADC1 configuration ------------------------------------------------------*/
+//  ADC_InitStructure.ADC_Mode = ADC_Mode_Independent;
+//  ADC_InitStructure.ADC_ScanConvMode = ENABLE;
+//  ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;
+//  //ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T3_TRGO;
+//  ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;
+//  ADC_InitStructure.ADC_NbrOfChannel = 2;
+//  ADC_Init(ADC1, &ADC_InitStructure);
+
+//  /* ADC1 regular configuration */ 
+//  ADC_RegularChannelConfig(ADC1, ADC_Channel_0, 1, ADC_SampleTime_7Cycles5);
+//  ADC_RegularChannelConfig(ADC1, ADC_Channel_3, 2, ADC_SampleTime_7Cycles5);
+////  ADC_RegularChannelConfig(ADC1, ADC_Channel_7, 3, ADC_SampleTime_7Cycles5);
+////	ADC_RegularChannelConfig(ADC1, ADC_Channel_6, 4, ADC_SampleTime_7Cycles5);
+
+//   ADC_DMACmd(ADC1 , ENABLE);
+//   ADC_ExternalTrigConvCmd(ADC1, ENABLE);
+//  
+//   ADC_Cmd(ADC1 , ENABLE);   
+//   ADC_ResetCalibration(ADC1);
+//   while(ADC_GetResetCalibrationStatus(ADC1)){};
+//   ADC_StartCalibration(ADC1);
+//   while(ADC_GetCalibrationStatus(ADC1)){};
+//}
 
 /*DAC 配置*/
 /*

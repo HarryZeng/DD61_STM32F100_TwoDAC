@@ -29,6 +29,7 @@
 
 	
 #define ADC1_DR_ADDRESS    ((uint32_t)0x4001244C)	 
+#define DMA_BUFFER_SIZE     4*4	 
 	 
 void RCC_Configuration(void);
 void SMG_GPIO_INIT(void);
@@ -45,7 +46,7 @@ void ADC2_Init(void);
 void DAC_Configuration(void);	
 #endif
 
-extern int16_t adc_dma_tab[8]; 
+extern int16_t adc_dma_tab[DMA_BUFFER_SIZE]; 
 
 	 
 #ifdef __cplusplus

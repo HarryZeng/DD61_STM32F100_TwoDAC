@@ -10,8 +10,9 @@
 ..\output\selfstudy.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_rcc.h
 ..\output\selfstudy.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_usart.h
 ..\output\selfstudy.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\misc.h
-..\output\selfstudy.o: ..\Peripherals\inc\key.h
+..\output\selfstudy.o: ..\user\bsp_init.h
 ..\output\selfstudy.o: d:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+..\output\selfstudy.o: ..\Peripherals\inc\key.h
 ..\output\selfstudy.o: ..\Peripherals\inc\SelfStudy.h
 ..\output\selfstudy.o: ..\Peripherals\inc\main.h
 ..\output\selfstudy.o: ..\Peripherals\inc\flash.h

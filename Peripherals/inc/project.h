@@ -89,9 +89,11 @@ typedef enum
 		LOC
 }Button_STATUS;	 
 
-extern int32_t 	SA_Final;
-extern int32_t 	SB_Final;
-extern int16_t adc_dma_tab[8]; 
+extern float 	S1_Final;
+extern float 	S2_Final;
+extern float 	SA_Final;
+extern float 	SB_Final;
+extern int16_t adc_dma_tab[16]; 
 extern int16_t Threshold;
 extern uint8_t 	RegisterA;
 extern uint32_t ADCValue;
@@ -99,10 +101,12 @@ extern uint8_t  EventFlag;
 extern int32_t 	DACOUT1;
 extern int32_t 	DACOUT2;
 extern uint32_t 	ShortCircuitCounter;
-extern int32_t		S_Total_Final;
+extern float		S_Total_Final;
 
 void Get_SA_Value(uint32_t *SAvalue);
 void Get_SB_Value(uint32_t *SBvalue);
+void Get_S1_Value(uint32_t *S1value);
+void Get_S2_Value(uint32_t *S2value);
 void Main_Function(void);	 
 void GetADCAverageValue(uint32_t *AverageValue);
 void GetEEPROM(void);

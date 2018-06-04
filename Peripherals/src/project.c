@@ -94,13 +94,18 @@ uint8_t DustFlag=0;
 
 int32_t 	SA[4];   /*PG120->S[4]*/
 int32_t 	SB[4];   /*PG120->S[4]*/
+int32_t 	S1_Sum=0;
+int32_t 	S2_Sum=0;
 int32_t 	SA_Sum=0;
 int32_t 	SB_Sum=0;
-int32_t 	SA_Final=0;
-int32_t 	SB_Final=0;
+
+float 	S1_Final=0;
+float 	S2_Final=0;
+float 	SA_Final=0;
+float 	SB_Final=0;
 uint8_t 	S_Index=0;
 uint8_t 	S_Flag=0;
-int32_t		S_Total_Final=0;
+float		S_Total_Final=0;
 
 
 int32_t 	SX[4];
@@ -303,14 +308,24 @@ void DMA1_Channel1_IRQHandler(void)
 //				;
     if(DMA_GetITStatus(DMA_IT_TC))                      //判断DMA传输完成中断  
     {   
-				SA_Sum = adc_dma_tab[0]+adc_dma_tab[2]+adc_dma_tab[4]+adc_dma_tab[6];
-				SB_Sum = adc_dma_tab[1]+adc_dma_tab[3]+adc_dma_tab[5]+adc_dma_tab[7];
+				SA_Sum = adc_dma_tab[0]+adc_dma_tab[4]+adc_dma_tab[8]+adc_dma_tab[12];
+				SB_Sum = adc_dma_tab[1]+adc_dma_tab[5]+adc_dma_tab[9]+adc_dma_tab[13];
+			
+				S1_Sum = adc_dma_tab[2]+adc_dma_tab[6]+adc_dma_tab[10]+adc_dma_tab[14];
+				S2_Sum = adc_dma_tab[3]+adc_dma_tab[7]+adc_dma_tab[11]+adc_dma_tab[15];
+			
+				S1_Final = S1_Sum / 4;
+				S2_Final = S2_Sum / 4;
 			
 				SA_Final = SA_Sum / 4;
 				SB_Final = SB_Sum / 4;
 				SA_Sum = 0;
 				SB_Sum = 0;
-				S_Total_Final = SA_Final - SB_Final;
+				
+				if(SA_Final>=SB_Final)
+					S_Total_Final = SA_Final - SB_Final;
+				else if(SA_Final<SB_Final)
+					S_Total_Final = SB_Final - SA_Final;
 //				SA_Final = 0;
 //				SB_Final = 0;
 				sample_finish = 1;
@@ -531,20 +546,26 @@ void GetTotalADCValue(void)
 
 void Get_SA_Value(uint32_t *SAvalue)
 {
-		uint32_t 	Dispaly_Max=0;
-		uint32_t 	Dispaly_Min=0;
 					/*正常显示*/
 			*SAvalue =SA_Final;
 }
 
 void Get_SB_Value(uint32_t *SBvalue)
 {
-		uint32_t 	Dispaly_Max=0;
-		uint32_t 	Dispaly_Min=0;
 					/*正常显示*/
 			*SBvalue =SB_Final;
 }
 
+void Get_S1_Value(uint32_t *S1value)
+{
+					/*正常显示*/
+			*S1value =S1_Final;
+}
+void Get_S2_Value(uint32_t *S2value)
+{
+					/*正常显示*/
+			*S2value =S2_Final;
+}
 
 uint16_t Dac1_Get_Vol(void)  
 {  
@@ -1521,8 +1542,8 @@ void GetEEPROM(void)
 			S_SET 								= ReadFlash(S_SET_FLASH_DATA_ADDRESS);
 			DSC 									= ReadFlash(DSC_FLASH_DATA_ADDRESS);
 //			
-//			DACOUT1 = 1400;
-//			DACOUT2 = 12;
+//			DACOUT1 = 1000;
+//			DACOUT2 = 1000;
 //			
 			
 			DAC_SetChannel1Data(DAC_Align_12b_R,(uint16_t)DACOUT1);

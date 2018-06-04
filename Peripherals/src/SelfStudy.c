@@ -15,6 +15,7 @@
 ///* 包含的头文件 --------------------------------------------------------------*/
 /* Includes ------------------------------------------------------------------*/
 #include "project.h"
+#include "bsp_init.h"
 #include "key.h"
 #include "SelfStudy.h"
 #include "flash.h"
@@ -36,7 +37,11 @@ uint32_t CalibrateADCValue=0;
 uint32_t CalibrateSAValue=0;
 uint32_t CalibrateSBValue=0;
 
-extern int16_t adc_dma_tab[8];
+uint32_t CalibrateS1Value=0;
+uint32_t CalibrateS2Value=0;
+
+
+extern int16_t adc_dma_tab[DMA_BUFFER_SIZE];
 extern  uint8_t DX_Flag;
 extern uint8_t sample_finish;  
 void ADCINcalibration(void);
@@ -218,23 +223,26 @@ uint8_t  JudgeSvalue(uint32_t *S_Value)
 
 void ADCINcalibration(void) 
 {
-	CalibrateSAValue = 0;
-	CalibrateSBValue = 0;
-	while(CalibrateADCValue>1050 || CalibrateADCValue<950)
-	{
+	CalibrateS1Value = 0;
+	CalibrateS2Value = 0;
+
+//	while(CalibrateS1Value>=1400 || CalibrateS1Value<=1000 || CalibrateS2Value>=1400 || CalibrateS2Value<=1000)
+//	{
 		if(sample_finish)
 		{
-				sample_finish = 0;
+			sample_finish = 0;
 
-			Get_SA_Value(&CalibrateSAValue);					//定时ADC采样
-			if(CalibrateSAValue > 1400)
-			{
-				DACOUT1 = DACOUT1-1;
-			}
-			else if(CalibrateSAValue < 1000)
-			{
-				DACOUT1 = DACOUT1+1;
-			}
+			Get_S1_Value(&CalibrateS1Value);					//定时ADC采样
+//			if(CalibrateS1Value > 1400)
+//			{
+//				DACOUT1 = DACOUT1-1;
+//			}
+//			else if(CalibrateS1Value < 1000)
+//			{
+//				DACOUT1 = DACOUT1+1;
+//			}
+			DACOUT1 = CalibrateS1Value;
+			
 			if(DACOUT1>=4095)
 				DACOUT1 = 4095;
 			else if(DACOUT1<=0)
@@ -242,28 +250,29 @@ void ADCINcalibration(void)
 			DAC_SetChannel1Data(DAC_Align_12b_R,(uint16_t)DACOUT1);
 			DAC_SoftwareTriggerCmd(DAC_Channel_1,ENABLE);
 			/*******************************************************/
-			Get_SB_Value(&CalibrateSBValue);					//定时ADC采样
-			if(CalibrateSBValue > 1400)
-			{
-				DACOUT2 = DACOUT2-1;
-			}
-			else if(CalibrateSBValue < 1000)
-			{
-				DACOUT2 = DACOUT2+1;
-			}
+			Get_S2_Value(&CalibrateS2Value);					//定时ADC采样
+//			if(CalibrateS2Value > 1400)
+//			{
+//				DACOUT2 = DACOUT2-1;
+//			}
+//			else if(CalibrateS2Value < 1000)
+//			{
+//				DACOUT2 = DACOUT2+1;
+//			}
+			DACOUT2 = CalibrateS2Value;
 			if(DACOUT2>=4095)
 				DACOUT2 = 4095;
 			else if(DACOUT2<=0)
 				DACOUT2 = 0;
-			DAC_SetChannel1Data(DAC_Align_12b_R,(uint16_t)DACOUT2);
+			DAC_SetChannel2Data(DAC_Align_12b_R,(uint16_t)DACOUT2);
 			DAC_SoftwareTriggerCmd(DAC_Channel_2,ENABLE);
 			
 			/*限位*/
-			if((DACOUT1>=4095||DACOUT1<=0)&&(CalibrateSAValue>1400||CalibrateSAValue<=1000))
-				break;
-			if((DACOUT2>=4095||DACOUT2<=0)&&(CalibrateSBValue>1400||CalibrateSBValue<=1000))
-				break;
-		}
+//			if((DACOUT1>=4095||DACOUT1<=0)&&(CalibrateS1Value>=1400||CalibrateS1Value<=1000))
+//				break;
+//			if((DACOUT2>=4095||DACOUT2<=0)&&(CalibrateS2Value>=1400||CalibrateS2Value<=1000))
+//				break;
+//		}
 	}
 }
 
