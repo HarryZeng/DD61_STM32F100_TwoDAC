@@ -9,5 +9,8 @@ PG120 VERSION 1.0
 					
 20171204:
 	base version is ok,need debug with hardware(ADC)
+	
+	20180605:
+		function is ok ,need to debug by Mr.WU
 
 */

@@ -219,7 +219,7 @@ void CPV_SET_OUT(void)
 		}
 		LastOUT1 = OUT1;
 //		/*显示OUT1和OUT2的状态*/
-		SMG_DisplayOUT_STATUS(OUT1,OUT2,OUT3);
+		SMG_DisplayOUT_STATUS(OUT1,OUT2);
 }
 
 
@@ -364,7 +364,7 @@ void DMA1_Channel1_IRQHandler(void)
 					}
 				}
 				/*显示OUT1和OUT2的状态*/
-				SMG_DisplayOUT_STATUS(OUT1,OUT2,0);
+				SMG_DisplayOUT_STATUS(OUT1,OUT2);
 				LastRegisterA = RegisterA;
     }  
     DMA_ClearITPendingBit(DMA_IT_TC);                   //清楚DMA中断标志位  

@@ -3,7 +3,7 @@
 <title>Static Call Graph - [..\Output\DD61_F100_2DAC.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image ..\Output\DD61_F100_2DAC.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050106: Last Updated: Mon Jun 04 18:27:19 2018
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5050106: Last Updated: Tue Jun 05 09:34:18 2018
 <BR><P>
 <H3>Maximum Stack Usage =        180 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1483,7 +1483,7 @@ Global Symbols
 <LI><a href="#[a7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GetMAXADCValue
 </UL>
 
-<P><STRONG><a name="[81]"></a>SMG_DisplayOUT_STATUS</STRONG> (Thumb, 98 bytes, Stack size 16 bytes, display.o(.text))
+<P><STRONG><a name="[81]"></a>SMG_DisplayOUT_STATUS</STRONG> (Thumb, 66 bytes, Stack size 16 bytes, display.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = SMG_DisplayOUT_STATUS
 </UL>
 <BR>[Calls]<UL><LI><a href="#[82]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_ReadInputDataBit
@@ -1879,13 +1879,13 @@ Global Symbols
 
 <P><STRONG><a name="[20b]"></a>ClearData</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, project.o(.text), UNUSED)
 
-<P><STRONG><a name="[d0]"></a>CPV_SET_OUT</STRONG> (Thumb, 60 bytes, Stack size 8 bytes, project.o(.text), UNUSED)
+<P><STRONG><a name="[d0]"></a>CPV_SET_OUT</STRONG> (Thumb, 58 bytes, Stack size 8 bytes, project.o(.text), UNUSED)
 <BR><BR>[Calls]<UL><LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SMG_DisplayOUT_STATUS
 </UL>
 
 <P><STRONG><a name="[20c]"></a>JudgeDX</STRONG> (Thumb, 198 bytes, Stack size 36 bytes, project.o(.text), UNUSED)
 
-<P><STRONG><a name="[d1]"></a>SetOUT1Status</STRONG> (Thumb, 172 bytes, Stack size 24 bytes, project.o(.text))
+<P><STRONG><a name="[d1]"></a>SetOUT1Status</STRONG> (Thumb, 174 bytes, Stack size 24 bytes, project.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = SetOUT1Status
 </UL>
 <BR>[Calls]<UL><LI><a href="#[86]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPIO_WriteBit
@@ -1893,7 +1893,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[18]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DMA1_Channel1_IRQHandler
 </UL>
 
-<P><STRONG><a name="[18]"></a>DMA1_Channel1_IRQHandler</STRONG> (Thumb, 468 bytes, Stack size 32 bytes, project.o(.text))
+<P><STRONG><a name="[18]"></a>DMA1_Channel1_IRQHandler</STRONG> (Thumb, 466 bytes, Stack size 32 bytes, project.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 56<LI>Call Chain = DMA1_Channel1_IRQHandler &rArr; SetOUT1Status
 </UL>
 <BR>[Calls]<UL><LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SMG_DisplayOUT_STATUS
@@ -1907,7 +1907,7 @@ Global Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> startup_stm32f10x_md.o(RESET)
 </UL>
-<P><STRONG><a name="[20d]"></a>ADCDispalyProcess</STRONG> (Thumb, 30 bytes, Stack size 8 bytes, project.o(.text), UNUSED)
+<P><STRONG><a name="[20d]"></a>ADCDispalyProcess</STRONG> (Thumb, 28 bytes, Stack size 8 bytes, project.o(.text), UNUSED)
 
 <P><STRONG><a name="[20e]"></a>GetRegisterAState</STRONG> (Thumb, 24 bytes, Stack size 0 bytes, project.o(.text), UNUSED)
 

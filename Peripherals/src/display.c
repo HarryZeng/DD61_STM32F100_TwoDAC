@@ -997,34 +997,24 @@ void SMG_DisplaySET_Step_2_Mode(int16_t modeflag,uint32_t ADCINvalue,uint32_t Ne
 		}
 }
 
-/*OUT1,OUT2,OUT3◊¥Ã¨œ‘ æ*/
-void SMG_DisplayOUT_STATUS(uint8_t OUT1_STATUS,uint8_t OUT2_STATUS,uint8_t OUT3_STATUS)
+/*OUT1,OUT2◊¥Ã¨œ‘ æ*/
+void SMG_DisplayOUT_STATUS(uint8_t OUT1_STATUS,uint8_t OUT2_STATUS)
 { 
 		OUT1_STATUS = GPIO_ReadInputDataBit(OUT1_GPIO_Port,OUT1_Pin);
 		OUT2_STATUS = !GPIO_ReadInputDataBit(OUT2_GPIO_Port,OUT2_Pin);
 		//OUT3_STATUS = !GPIO_ReadInputDataBit(OUT3_GPIO_Port,OUT3_Pin);
 
-		if(OUT1_STATUS==0 && OUT2_STATUS==1&&OUT3_STATUS==1)
+		if(OUT1_STATUS==0 && OUT2_STATUS==1)
+		{
 			SMG_data_Decode_table[0][8] = data_SMG_seg_table[30]|data_SMG_seg_table[31];						//D1	30->b,3->c seg	
-		else if(OUT1_STATUS==1 && OUT2_STATUS==0&&OUT3_STATUS==1)
-			SMG_data_Decode_table[0][8] = data_SMG_seg_table[33];						//D1	33->e seg
-		else if(OUT1_STATUS==1 && OUT2_STATUS==1&&OUT3_STATUS==0)
-			SMG_data_Decode_table[0][8] = data_SMG_seg_table[34];						//D1	34->f seg
-		else if(OUT1_STATUS==0 && OUT1_STATUS==0 && OUT3_STATUS==1)
-		{
-			SMG_data_Decode_table[0][8] = data_SMG_seg_table[30]|data_SMG_seg_table[31]|data_SMG_seg_table[33];						//b,c,e seg	
 		}
-		else if(OUT1_STATUS==1 && OUT1_STATUS==0 && OUT3_STATUS==0)
+		else if(OUT1_STATUS==1 && OUT2_STATUS==0)
 		{
-			SMG_data_Decode_table[0][8] = data_SMG_seg_table[33]|data_SMG_seg_table[34];						//e,f seg	
+			SMG_data_Decode_table[0][8] = data_SMG_seg_table[33]|data_SMG_seg_table[34];						//D1	33->e f seg
 		}
-		else if(OUT1_STATUS==0 && OUT1_STATUS==1 && OUT3_STATUS==0)
+		else if(OUT1_STATUS==1 && OUT2_STATUS==1)
 		{
-			SMG_data_Decode_table[0][8] = data_SMG_seg_table[30]|data_SMG_seg_table[31]|data_SMG_seg_table[34];						//b,c,f seg	
-		}
-		else if(OUT1_STATUS==0 && OUT1_STATUS==0 && OUT3_STATUS==0)
-		{
-			SMG_data_Decode_table[0][8]=data_SMG_seg_table[30]|data_SMG_seg_table[31]|data_SMG_seg_table[33]|data_SMG_seg_table[34];//OUT1£¨OUT2,OUT3Õ¨ ±¡¡
+			SMG_data_Decode_table[0][8] = data_SMG_seg_table[30]|data_SMG_seg_table[31]|data_SMG_seg_table[33]|data_SMG_seg_table[34];						//D1	b c e f seg
 		}
 		else
 		{

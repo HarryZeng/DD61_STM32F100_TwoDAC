@@ -505,7 +505,7 @@ void SMG_DisplaySET_Step_1_Mode(int16_t modeflag,uint32_t ADCINvalue);
 /*SET-step-2模式菜单*/
 void SMG_DisplaySET_Step_2_Mode(int16_t modeflag,uint32_t ADCINvalue,uint32_t ADCMAX);
 /*OUT1,OUT2状态显示*/
-void SMG_DisplayOUT_STATUS(uint8_t OUT1_STATUS,uint8_t OUT2_STATUS,uint8_t OUT3_STATUS);
+void SMG_DisplayOUT_STATUS(uint8_t OUT1_STATUS,uint8_t OUT2_STATUS);
 /*END界面*/
 void END_Display(void);
 /*DUST界面*/
