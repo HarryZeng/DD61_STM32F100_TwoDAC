@@ -24,6 +24,8 @@
 #include "stm32f10x_dma.h"
 #include "stm32f10x_tim.h"
 #include "stm32f10x_dac.h"
+#include "stm32f10x_pwr.h"
+#include "stm32f10x_exti.h"
 
 /*DSP库宏定义：ARM_MATH_CM0*/
 
@@ -51,7 +53,7 @@ int32_t ADC_Display=0;
 int32_t DACOUT1 = 1000;
 int32_t DACOUT2 = 1000;
 uint32_t CPV = 0;
-
+uint8_t PVD_Flag = 0;
 
 Button_STATUS KEY=ULOC;
 uint8_t 		ConfirmShortCircuit=0;
@@ -579,6 +581,16 @@ uint16_t Dac1_Get_Vol(void)
     return DAC_GetDataOutputValue(DAC_Channel_2);  
 } 
 
+void PVD_IRQHandler(void)
+{
+	if(EXTI_GetITStatus(EXTI_Line16) != RESET)
+	{
+		PVD_Flag = 1;
+		/* Clear the Key Button EXTI line pending bit */
+		EXTI_ClearITPendingBit(EXTI_Line16);
+	}
+}
+
 uint16_t RealDACOUT = 0;
 
 void Main_Function(void)
@@ -587,10 +599,9 @@ void Main_Function(void)
 	//ATTSet(ATT100);
 	while(1)
 	{
-		if(0)
+		if (PVD_Flag)
 		{
-			Dust_Display();
-			GPIO_WriteBit(OUT1_GPIO_Port, OUT1_Pin, Bit_RESET);/*一直将OUT1拉低*/
+			
 		}
 		else
 		{

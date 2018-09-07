@@ -5,7 +5,8 @@
 #include "stm32f10x_adc.h"
 #include "stm32f10x_dma.h"
 #include "stm32f10x_dac.h"
-
+#include "stm32f10x_pwr.h"
+#include "stm32f10x_exti.h"
 
 int16_t adc_dma_tab[DMA_BUFFER_SIZE] = { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};  
 
@@ -575,196 +576,52 @@ void DAC_Configuration(void)
 	DAC_OUT_Init();
 }
 
-//void  ADC1_Init(void)
-//{ 	
-//	ADC_InitTypeDef ADC_InitStructure; 
-//	GPIO_InitTypeDef GPIO_InitStructure;
+/**
+  * @brief Configures EXTI Lines.
+  * @param None
+  * @retval None
+  */
+void EXTI_Configuration(void)
+{
+  EXTI_InitTypeDef EXTI_InitStructure;
 
-//	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA |RCC_APB2Periph_ADC1	, ENABLE );	  //使能ADC1通道时钟
-//   
-//	RCC_ADCCLKConfig(RCC_PCLK2_Div6);   //设置ADC分频因子6 72M/6=12,ADC最大时间不能超过14M
-//  
-//	//PA1 作为模拟通道输入引脚                         
-//	GPIO_InitStructure.GPIO_Pin = ADCIN_1_Pin;//CH->5
-//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;		//模拟输入引脚
-//	GPIO_Init(ADCIN_1_GPIO_Port, &GPIO_InitStructure);	
-//	
-//	GPIO_InitStructure.GPIO_Pin = ADCIN_2_Pin;//CH->4
-//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;		//模拟输入引脚
-//	GPIO_Init(ADCIN_2_GPIO_Port, &GPIO_InitStructure);	
-//	
-//	GPIO_InitStructure.GPIO_Pin = ADCIN_3_Pin;//CH->7
-//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;		//模拟输入引脚
-//	GPIO_Init(ADCIN_3_GPIO_Port, &GPIO_InitStructure);	
-//	
-//	GPIO_InitStructure.GPIO_Pin = ADCIN_4_Pin;//CH->6
-//	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;		//模拟输入引脚
-//	GPIO_Init(ADCIN_4_GPIO_Port, &GPIO_InitStructure);	
+  /* Configure EXTI Line16(PVD Output) to generate an interrupt on rising and
+     falling edges */
+  EXTI_ClearITPendingBit(EXTI_Line16); 
+  EXTI_InitStructure.EXTI_Line = EXTI_Line16;// PVD连接到中断16线上 
+  EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;//使用中断模式
+  EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;//电压下降到设定阈值时产生中断
+  EXTI_InitStructure.EXTI_LineCmd = ENABLE;// 使能中断
+  EXTI_Init(&EXTI_InitStructure);// 初始化
+}
 
-//	ADC_DeInit(ADC1);  //复位ADC1,将外设 ADC1 的全部寄存器重设为缺省值
+/**
+  * @brief Configures NVIC and Vector Table base location.
+  * @param None
+  * @retval None
+  */
+void NVIC_Configuration(void)
+{
+  NVIC_InitTypeDef NVIC_InitStructure;
+  
+  /* Configure one bit for preemption priority */
+  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);//中断优先级配置
+  
+  /* Enable the PVD Interrupt */ //设置PVD中断
+  NVIC_InitStructure.NVIC_IRQChannel = PVD_IRQn;
+  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  NVIC_Init(&NVIC_InitStructure);
+}
 
-///*
-//#define ADC_Mode_Independent                       ((uint32_t)0x00000000)//独立模式
-//#define ADC_Mode_RegInjecSimult                    ((uint32_t)0x00010000)//混合的同步规则+注入同步模式
-//#define ADC_Mode_RegSimult_AlterTrig               ((uint32_t)0x00020000)//混合的同步规则+交替触发模式
-//#define ADC_Mode_InjecSimult_FastInterl            ((uint32_t)0x00030000)//混合同步注入+快速交叉模式
-//#define ADC_Mode_InjecSimult_SlowInterl            ((uint32_t)0x00040000)//混合同步注入+慢速交叉模式
-//#define ADC_Mode_InjecSimult                       ((uint32_t)0x00050000)//注入同步模式
-//#define ADC_Mode_RegSimult                         ((uint32_t)0x00060000)//规则同步模式
-//#define ADC_Mode_FastInterl                        ((uint32_t)0x00070000)//快速交叉模式
-//#define ADC_Mode_SlowInterl                        ((uint32_t)0x00080000)//慢速交叉模式
-//#define ADC_Mode_AlterTrig                         ((uint32_t)0x00090000)//交替触发模式
-//*/
-//	ADC_InitStructure.ADC_Mode = ADC_Mode_RegSimult;	//ADC工作模式:ADC1和ADC2工作在独立模式
-//	ADC_InitStructure.ADC_ScanConvMode = DISABLE;	//模数转换工作在单通道模式
-//	ADC_InitStructure.ADC_ContinuousConvMode = DISABLE;	//模数转换工作在单次转换模式
-//	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_T2_CC2;	//转换由软件而不是外部触发启动
-//	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;	//ADC数据右对齐
-//	ADC_InitStructure.ADC_NbrOfChannel = 4;	//顺序进行规则转换的ADC通道的数目
-//	ADC_Init(ADC1, &ADC_InitStructure);	//根据ADC_InitStruct中指定的参数初始化外设ADCx的寄存器   
-
-//  ADC_RegularChannelConfig(ADC1,ADC_Channel_5,1,ADC_SampleTime_1Cycles5);
-//	ADC_RegularChannelConfig(ADC1,ADC_Channel_4,2,ADC_SampleTime_1Cycles5);
-//	ADC_RegularChannelConfig(ADC1,ADC_Channel_7,3,ADC_SampleTime_1Cycles5);
-//	ADC_RegularChannelConfig(ADC1,ADC_Channel_6,4,ADC_SampleTime_1Cycles5);
-
-//  ADC_DMACmd(ADC1,ENABLE);
-//	ADC_Cmd(ADC1, ENABLE);	//使能指定的ADC1
-//	
-//	ADC_ResetCalibration(ADC1);	//使能复位校准  
-//	
-//	while(ADC_GetResetCalibrationStatus(ADC1));	//等待复位校准结束
-//	
-//	ADC_StartCalibration(ADC1);	 //开启AD校准
-// 
-//	while(ADC_GetCalibrationStatus(ADC1));	 //等待校准结束
-//	
-//	
-//}	
-
-
-
-//void ADC2_Init(void)
-//{ 	
-////	ADC_InitTypeDef ADC_InitStructure; 
-////	GPIO_InitTypeDef GPIO_InitStructure;
-
-////	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB |RCC_APB2Periph_ADC2	, ENABLE );	  //使能ADC1通道时钟
-//// 
-
-////	RCC_ADCCLKConfig(RCC_PCLK2_Div6);   //设置ADC分频因子6 72M/6=12,ADC最大时间不能超过14M
-
-////	//PB0 ,PB1 作为模拟通道输入引脚                         
-////	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5;
-////	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AIN;		//模拟输入引脚
-////	GPIO_Init(GPIOA, &GPIO_InitStructure);		
-////	
-////	ADC_DeInit(ADC2);  //复位ADC1,将外设 ADC1 的全部寄存器重设为缺省值
-
-////	ADC_InitStructure.ADC_Mode = ADC_Mode_RegSimult;	//ADC工作模式:ADC1和ADC2工作在独立模式
-////	ADC_InitStructure.ADC_ScanConvMode = DISABLE;	//模数转换工作在多通道模式
-////	ADC_InitStructure.ADC_ContinuousConvMode = ENABLE;	//模数转换工作在单次转换模式
-////	ADC_InitStructure.ADC_ExternalTrigConv = ADC_ExternalTrigConv_None;	//转换由软件而不是外部触发启动
-////	ADC_InitStructure.ADC_DataAlign = ADC_DataAlign_Right;	//ADC数据右对齐
-////	ADC_InitStructure.ADC_NbrOfChannel = 1;	//顺序进行规则转换的ADC通道的数目 取值 范围1~16
-////	ADC_Init(ADC2, &ADC_InitStructure);	//根据ADC_InitStruct中指定的参数初始化外设ADCx的寄存器   
-////	
-////	ADC_RegularChannelConfig(ADC2, ADC_Channel_5, 1, ADC_SampleTime_239Cycles5);
-//// 
-////	
-//////	Enable ADC2 external trigger conversion   //
-//////	ADC_ExternalTrigConvCmd(ADC2, ENABLE);                    //使能 ADC2的外部触发转换 
-
-////  /*ADC校准过程（还不知道是放这号还是放在主函数里面好）*/
-////  ADC_Cmd(ADC2, ENABLE);	//使能指定的ADC1
-////	ADC_ResetCalibration(ADC2);	//使能复位校准  
-////	while(ADC_GetResetCalibrationStatus(ADC2));	//等待复位校准结束
-////	ADC_StartCalibration(ADC2);	 //开启AD校准
-////  while(ADC_GetCalibrationStatus(ADC2));	 //等待校准结束
-// 
-//}
-
-
-
-
-// uint32_t SendBuff[10];
-// uint32_t adc1,adc2;
-// uint32_t ad[10];
-// uint32_t xo; 
-////DMA1的各通道配置
-////这里的传输形式是固定的,这点要根据不同的情况来修改
-////从存储器->外设模式/8位数据宽度/存储器增量模式
-////DMA_CHx:DMA通道CHx
-////cpar:外设地址
-////cmar:存储器地址
-////cndtr:数据传输量 
-//void DMA_Config(DMA_Channel_TypeDef* DMA_CHx,uint32_t cpar,uint32_t cmar,uint16_t cndtr)
-//{
-//	DMA_InitTypeDef DMA_InitStructure;
-//	NVIC_InitTypeDef NVIC_InitStructure;
-//	//delay_ms(1);
-// 	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1, ENABLE);	//使能DMA传输
-//	//delay_ms(1);
-//  DMA_DeInit(DMA_CHx);   //将DMA的通道1寄存器重设为缺省值
-//	DMA_InitStructure.DMA_PeripheralBaseAddr = cpar;  //DMA外设ADC基地址
-//	DMA_InitStructure.DMA_MemoryBaseAddr = cmar;  //DMA内存基地址
-//	DMA_InitStructure.DMA_DIR = DMA_DIR_PeripheralSRC;  //数据传输方向，从内存读取发送到外设
-//	DMA_InitStructure.DMA_BufferSize = cndtr;  //DMA通道的DMA缓存的大小
-//	DMA_InitStructure.DMA_PeripheralInc = DMA_PeripheralInc_Disable;  //外设地址寄存器不变
-//	DMA_InitStructure.DMA_MemoryInc = DMA_MemoryInc_Enable;  //内存地址寄存器递增
-//	DMA_InitStructure.DMA_PeripheralDataSize = DMA_PeripheralDataSize_Word;  //数据宽度为8位
-//	DMA_InitStructure.DMA_MemoryDataSize = DMA_MemoryDataSize_Word; //数据宽度为8位
-//	DMA_InitStructure.DMA_Mode = DMA_Mode_Circular;  //工作在循环模式  buff写满后回到初始地址从写
-//	DMA_InitStructure.DMA_Priority = DMA_Priority_High; //DMA通道 x拥有中优先级 
-//	DMA_InitStructure.DMA_M2M = DMA_M2M_Disable;  //DMA通道x没有设置为内存到内存传输
-//	DMA_Init(DMA_CHx, &DMA_InitStructure);  //根据DMA_InitStruct中指定的参数初始化DMA的通道USART1_Tx_DMA_Channel所标识的寄存器
-//	  	
-//  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
-//	NVIC_InitStructure.NVIC_IRQChannel = DMA1_Channel1_IRQn; 
-//  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1; 
-//  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0; 
-//  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE; 
-//  NVIC_Init(&NVIC_InitStructure);          // Enable the DMA Interrupt 
-//	
-//	DMA_ClearFlag(DMA1_FLAG_TC1);
-//  DMA_ClearITPendingBit(DMA1_IT_TC1);
-//  
-//	DMA_ITConfig(DMA1_Channel1, DMA_IT_TC, ENABLE);  //DMA传输完成中断
-//  DMA_Cmd(DMA1_Channel1, ENABLE);
-//	ADC_SoftwareStartConvCmd(ADC1, ENABLE);		//使能指定的ADC1的软件转换启动功能	
-//	ADC_SoftwareStartConvCmd(ADC2, ENABLE);		//使能指定的ADC1的软件转换启动功能
-//	
-//} 
-
-//void filter(void)  /*均值滤波*/
-//{
-//	 uint16_t i,n;
-//	 uint32_t o,p;
-//   uint8_t count;
-//	 n=p=count=i=o=0;
-//		for(count=0;count<N;count++)
-//    {
-//		    i=(uint16_t)SendBuff[count]&0x0000ffff;             //先把32为数据的高低16位拆开再均值滤波    不然数据会有错误
-//			  n=(uint16_t)((SendBuff[count]&0xffff0000)>>16);
-//       ad[count]=i;			
-//       o =o+ i;	              
-//			 p=p+n;
-//		}
-//    xo=o;
-//		adc1=o/N;
-//		adc2=p/N;
-//}
-//	 
-//void DMA1_Channel1_IRQHandler(void)
-//{
-//		if(DMA_GetITStatus(DMA1_IT_TC1) != RESET)
-//		{
-//			filter();
-////			adc1=SendBuff;
-//			DMA_ClearITPendingBit(DMA1_IT_TC1);
-//		}
-//}
-
-
-
+void PVD_init(void)
+{
+	EXTI_Configuration();
+	
+	NVIC_Configuration();
+	
+	PWR_PVDLevelConfig(PWR_PVDLevel_2V9); /*设置PVD电压检测*/
+	PWR_PVDCmd(ENABLE);
+}
 

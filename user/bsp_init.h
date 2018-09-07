@@ -41,7 +41,8 @@ void TIM1_Init(void);
 void ADC1_Configuration(void);	 
 void ADC1_Init(void);
 void ADC2_Init(void);
-	
+void PVD_init(void);
+
 #ifdef  DAC_OUT_Enable
 void DAC_Configuration(void);	
 #endif

@@ -156,7 +156,7 @@ void bsp_init(void)
 		IO_GPIO_INIT();
 		SMG_GPIO_INIT();
 		Button_Init();
-
+		PVD_init();
 }
 
 int ProgramCounter=0;

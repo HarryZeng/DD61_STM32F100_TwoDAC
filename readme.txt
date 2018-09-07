@@ -12,5 +12,9 @@ PG120 VERSION 1.0
 	
 	20180605:
 		function is ok ,need to debug by Mr.WU
+	2018-9-7
+		a.	key time counter change else if((Button->PressTimer >= Button->ShortTime) && (Button->PressTimer < Button->LongTime)) 
+			key.c line 110
+		b.	add PVD function
 
 */

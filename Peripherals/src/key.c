@@ -107,7 +107,7 @@ void PressCallback(ButtonStruct* Button)
 					Button->PressCounter++;				//记录按键被按下次数
 				}
 			}
-			else// if((Button->PressTimer)<(Button->ShortTime)) 
+			else if((Button->PressTimer >= Button->ShortTime) && (Button->PressTimer < Button->LongTime)) 
 			{
 				Button->Effect = PressShort;       
 				Button->PressTimer = 0; 

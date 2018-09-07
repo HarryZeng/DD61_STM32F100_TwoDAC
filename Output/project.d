@@ -21,3 +21,5 @@
 ..\output\project.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_dma.h
 ..\output\project.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_tim.h
 ..\output\project.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_dac.h
+..\output\project.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_pwr.h
+..\output\project.o: ..\Libraries\STM32F10x_StdPeriph_Driver\inc\stm32f10x_exti.h
